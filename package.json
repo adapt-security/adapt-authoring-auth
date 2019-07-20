@@ -1,0 +1,21 @@
+{
+  "name": "adapt-authoring-auth",
+  "version": "0.0.1",
+  "description": "",
+  "homepage": "https://github.com/taylortom/adapt-authoring-auth",
+  "main": "index.js",
+  "adapt_authoring": {
+    "module": true,
+    "utility": "auth",
+    "documentation": {
+      "enable": true,
+      "includes": {
+        "source": "lib/*",
+        "docs": "docs/*"
+      }
+    }
+  },
+  "dependencies": {
+    "adapt-authoring-core": "git+https://github.com/taylortom/adapt-authoring-core.git"
+  }
+}
