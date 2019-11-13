@@ -1,0 +1,26 @@
+{
+  "name": "adapt-authoring-auth",
+  "version": "0.0.1",
+  "description": "Authentication + authorisation module for the Adapt authoring tool",
+  "homepage": "https://github.com/taylortom/adapt-authoring-auth",
+  "main": "index.js",
+  "adapt_authoring": {
+    "module": true,
+    "utility": "auth",
+    "documentation": {
+      "enable": true
+    }
+  },
+  "peerDependencies": {
+    "adapt-authoring-core": "git+https://github.com/taylortom/adapt-authoring-core.git"
+  },
+  "dependencies": {
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "cookie-parser": "^1.4.4",
+    "body-parser": "^1.19.0",
+    "express-session": "^1.16.1",
+    "bcrypt-nodejs": "^0.0.3"
+  }
+}

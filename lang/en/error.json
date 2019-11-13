@@ -1,0 +1,6 @@
+
+{
+  "invalidemailpassword": "Invalid email address or password",
+  "tokennotvalid": "Token is not valid",
+  "authenticationfailed": "Authentication failed"
+}
