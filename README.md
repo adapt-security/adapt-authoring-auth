@@ -27,7 +27,7 @@ This will create a user with password "password".
 
 In Postman (or similar) run:
 
-POST http://localhost:5000/api/users with a request body of:
+POST http://localhost:5000/api/auth with a request body of:
 
 ```
 {
