@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "An authorisation token",
+  "type": "object",
+  "properties": {
+    "jwt": {
+      "description": "The JWT token",
+      "type": "string"
+    },
+    "createdAt": {
+      "description": "Token creation timestamp",
+      "type": "string",
+      "format": "date-time"
+    }
+    "expiresAt": {
+      "description": "Token expiration timestamp",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["token", "createdAt", "expiresAt"]
+}
