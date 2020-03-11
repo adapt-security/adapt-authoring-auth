@@ -3,8 +3,8 @@
   "description": "An authorisation token",
   "type": "object",
   "properties": {
-    "jwt": {
-      "description": "The JWT token",
+    "signature": {
+      "description": "The JWT token signature for verification purposes",
       "type": "string"
     },
     "createdAt": {
