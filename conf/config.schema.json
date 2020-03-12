@@ -5,6 +5,11 @@
     "secret": {
       "description": "A secret used to encode/decode Json Web Tokens",
       "type": "string"
+    },
+    "tokenLifespan": {
+      "description": "How long a token should remain valid for",
+      "type": "string",
+      "default": "99y"
     }
   },
   "required": ["secret"]
