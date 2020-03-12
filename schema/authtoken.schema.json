@@ -12,11 +12,6 @@
       "type": "string",
       "format": "date-time"
     }
-    "expiresAt": {
-      "description": "Token expiration timestamp",
-      "type": "string",
-      "format": "date-time"
-    }
   },
-  "required": ["token", "createdAt", "expiresAt"]
+  "required": ["token", "createdAt"]
 }
