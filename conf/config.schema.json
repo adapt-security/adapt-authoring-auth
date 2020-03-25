@@ -7,7 +7,7 @@
       "type": "boolean",
       "default": false
     },
-    "secret": {
+    "tokenSecret": {
       "description": "A secret used to encode/decode Json Web Tokens",
       "type": "string"
     },
@@ -20,7 +20,16 @@
       "description": "The identity of the issuer of the token",
       "type": "string",
       "default": "adapt"
+    },
+    "sessionSecret": {
+      "description": "A secret used to encode/decode user sessions",
+      "type": "string"
+    },
+    "sessionSecret": {
+      "description": "How long a token should remain valid for in milliseconds",
+      "type": "number",
+      "default": 604800000
     }
   },
-  "required": ["secret"]
+  "required": ["tokenSecret", "sessionSecret"]
 }
