@@ -25,7 +25,7 @@
       "description": "A secret used to encode/decode user sessions",
       "type": "string"
     },
-    "sessionSecret": {
+    "sessionLifespan": {
       "description": "How long a token should remain valid for in milliseconds",
       "type": "number",
       "default": 604800000
