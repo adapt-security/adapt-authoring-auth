@@ -7,11 +7,16 @@
       "description": "The JWT token signature for verification purposes",
       "type": "string"
     },
+    "userId": {
+      "description": "ID of the user this token belongs to",
+      "type": "String",
+      "isObjectId": true
+    }
     "createdAt": {
       "description": "Token creation timestamp",
       "type": "string",
       "format": "date-time"
     }
   },
-  "required": ["token", "createdAt"]
+  "required": ["signature", "userId", "createdAt"]
 }
