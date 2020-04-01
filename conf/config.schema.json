@@ -20,16 +20,7 @@
       "description": "The identity of the issuer of the token",
       "type": "string",
       "default": "adapt"
-    },
-    "sessionSecret": {
-      "description": "A secret used to encode/decode user sessions",
-      "type": "string"
-    },
-    "sessionLifespan": {
-      "description": "How long a token should remain valid for in milliseconds",
-      "type": "number",
-      "default": 604800000
     }
   },
-  "required": ["tokenSecret", "sessionSecret"]
+  "required": ["tokenSecret"]
 }
