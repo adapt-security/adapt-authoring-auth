@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Extra user properties related to auth",
+  "type": "object",
+  "properties": {
+    "authType": {
+      "description": "Types of authentication used with this user",
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    }
+  }
+}
