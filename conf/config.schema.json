@@ -21,6 +21,11 @@
       "description": "The identity of the issuer of the token",
       "type": "string",
       "default": "adapt"
+    },
+    "logMissingPermissions": {
+      "description": "In enabled, a warning is logged on app start for any routes with missing permissions",
+      "type": "boolean",
+      "default": true
     }
   },
   "required": ["tokenSecret"]
