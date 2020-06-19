@@ -1,0 +1,4 @@
+{
+  "error.secureroute": "Cannot secure route '%{route}', %{method} is not a valid HTTP method",
+  "error.alreadysecure": "Route %{method} '%{route}' already secured"
+}

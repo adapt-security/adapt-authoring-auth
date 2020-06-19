@@ -1,4 +1,0 @@
-{
-  "secureroute": "Cannot secure route '%{route}', %{method} is not a valid HTTP method",
-  "alreadysecure": "Route %{method} '%{route}' already secured"
-}
