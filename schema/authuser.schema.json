@@ -5,7 +5,7 @@
   "$merge": {
     "with": {
       "properties": {
-        "authType": {
+        "authTypes": {
           "description": "Types of authentication used with this user",
           "type": "array",
           "items": { "type": "string" },
