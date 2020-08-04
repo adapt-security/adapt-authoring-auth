@@ -2,7 +2,9 @@
   "name": "adapt-authoring-auth",
   "version": "0.0.1",
   "description": "Authentication + authorisation module for the Adapt authoring tool",
-  "homepage": "https://github.com/taylortom/adapt-authoring-auth",
+  "homepage": "https://github.com/adaptlearning/adapt-authoring-auth",
+  "license": "GPL-3.0",
+  "repository": "github:adaptlearning/adapt-authoring-auth",
   "main": "index.js",
   "peerDependencies": {
     "adapt-authoring-core": "github:adapt-security/adapt-authoring-core.git"
