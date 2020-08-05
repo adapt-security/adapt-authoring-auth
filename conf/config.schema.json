@@ -23,7 +23,7 @@
       "default": "adapt"
     },
     "logMissingPermissions": {
-      "description": "In enabled, a warning is logged on app start for any routes with missing permissions",
+      "description": "In enabled, a warning is logged on app start for any routes with missing permissions (note: any routes without defined permissions are inaccessible)",
       "type": "boolean",
       "default": true
     }
