@@ -15,7 +15,8 @@
     "createdAt": {
       "description": "Token creation timestamp",
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "isDate": true
     }
   },
   "required": ["signature", "userId", "createdAt"]
