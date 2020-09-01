@@ -17,7 +17,11 @@
       "type": "string",
       "format": "date-time",
       "isDate": true
+    },
+    "authType": {
+      "description": "Type of authentication used with this token",
+      "type": "string"
     }
   },
-  "required": ["signature", "userId", "createdAt"]
+  "required": ["signature", "userId", "createdAt", "authType"]
 }
