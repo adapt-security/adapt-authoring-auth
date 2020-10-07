@@ -1,7 +1,7 @@
 module.exports = {
-  AbstractAuthModule: require('./lib/abstractAuthModule'),
-  AuthError: require('./lib/authError'),
-  AuthToken: require('./lib/authToken'),
-  AuthUtils: require('./lib/authUtils'),
-  Module: require('./lib/authModule')
+  AbstractAuthModule: require('./lib/AbstractAuthModule'),
+  AuthError: require('./lib/AuthError'),
+  AuthToken: require('./lib/AuthToken'),
+  AuthUtils: require('./lib/AuthUtils'),
+  Module: require('./lib/AuthModule')
 };
