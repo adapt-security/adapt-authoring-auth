@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "authuser",
+  "$anchor": "authuser",
   "description": "Extra user properties related to auth",
   "$merge": {
     "with": {
