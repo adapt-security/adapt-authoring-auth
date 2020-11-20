@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$anchor": "authtoken",
   "description": "An authorisation token",
   "type": "object",
   "properties": {
