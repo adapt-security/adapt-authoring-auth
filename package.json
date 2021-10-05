@@ -4,16 +4,16 @@
   "description": "Authentication + authorisation module for the Adapt authoring tool",
   "homepage": "https://github.com/adaptlearning/adapt-authoring-auth",
   "license": "GPL-3.0",
-  "repository": "adaptlearning/adapt-authoring-auth",
   "main": "index.js",
-  "peerDependencies": {
-    "adapt-authoring-core": "adapt-security/adapt-authoring-core"
-  },
+  "repository": "adaptlearning/adapt-authoring-auth",
   "dependencies": {
     "adapt-authoring-roles": "adapt-security/adapt-authoring-roles",
     "adapt-authoring-users": "adapt-security/adapt-authoring-users",
     "express-session": "1.17.0",
     "jsonwebtoken": "8.5.1",
     "path-to-regexp": "^6.2.0"
+  },
+  "peerDependencies": {
+    "adapt-authoring-core": "adapt-security/adapt-authoring-core"
   }
 }
