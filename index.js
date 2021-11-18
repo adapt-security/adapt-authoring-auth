@@ -1,5 +1,5 @@
-export { default as AbstractAuthModule } from './lib/AbstractAuthModule';
-export { default as AuthError } from './lib/AuthError';
-export { default as AuthToken } from './lib/AuthToken';
-export { default as AuthUtils } from './lib/AuthUtils';
-export { default as Module } from './lib/AuthModule';
+export { default as AbstractAuthModule } from './lib/AbstractAuthModule.js';
+export { default as AuthError } from './lib/AuthError.js';
+export { default as AuthToken } from './lib/AuthToken.js';
+export { default as AuthUtils } from './lib/AuthUtils.js';
+export { default } from './lib/AuthModule.js';
