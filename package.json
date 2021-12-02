@@ -6,7 +6,7 @@
   "license": "GPL-3.0",
   "type": "module",
   "main": "index.js",
-  "repository": "adaptlearning/adapt-authoring-auth",
+  "repository": "github:adapt-security/adapt-authoring-auth",
   "dependencies": {
     "adapt-authoring-roles": "github:adapt-security/adapt-authoring-roles",
     "adapt-authoring-users": "github:adapt-security/adapt-authoring-users",
