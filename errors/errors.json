@@ -1,0 +1,53 @@
+{
+  "ACCOUNT_DISABLED": {
+    "description": "Account has been disabled",
+    "statusCode": 403
+  },
+  "AUTH_HEADER_UNSUPPORTED": {
+    "data": {
+      "type": "Authorisation type provided"
+    },
+    "description": "Authorization header type is unsupported by the API",
+    "statusCode": 401
+  },
+  "AUTH_PLUGIN_INVALID_CLASS": {
+    "description": "Auth plugin must extend AbstractAuthPlugin",
+    "statusCode": 500
+  },
+  "AUTH_TOKEN_EXPIRED": {
+    "description": "Auth token has expired, a new one must be created",
+    "statusCode": 401
+  },
+  "AUTH_TYPE_DEF_MISSING": {
+    "description": "Auth type is not defined",
+    "statusCode": 500
+  },
+  "DUPL_AUTH_PLUGIN_REG": {
+    "description": "An auth plugin is already registered with the same name",
+    "statusCode": 500
+  },
+  "MISSING_AUTH_HEADER": {
+    "description": "Authorization headers are missing from request",
+    "statusCode": 401
+  },
+  "UNAUTHENTICATED": {
+    "data": {
+      "method": "The request HTTP method",
+      "url": "The request URL"
+    },
+    "description": "Request is not authenticated for access to the API",
+    "statusCode": 401
+  },
+  "UNAUTHORISED": {
+    "data": {
+      "method": "The request HTTP method",
+      "url": "The request URL"
+    },
+    "description": "Request is not authorised to perform the required operation",
+    "statusCode": 403
+  },
+  "USER_REG_FAILED": {
+    "description": "User registration failed",
+    "statusCode": 400
+  }
+}
