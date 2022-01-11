@@ -31,10 +31,6 @@
     "statusCode": 401
   },
   "UNAUTHENTICATED": {
-    "data": {
-      "method": "The request HTTP method",
-      "url": "The request URL"
-    },
     "description": "Request is not authenticated for access to the API",
     "statusCode": 401
   },
