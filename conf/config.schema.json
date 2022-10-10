@@ -10,7 +10,10 @@
     "tokenSecret": {
       "description": "A secret used to encode/decode Json Web Tokens",
       "type": "string",
-      "minLength": 10
+      "minLength": 10,
+      "_adapt": { 
+        "isSecret": true 
+      }
     },
     "tokenLifespan": {
       "description": "How long a token should remain valid for",
