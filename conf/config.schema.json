@@ -18,7 +18,7 @@
     "tokenLifespan": {
       "description": "How long a token should remain valid for",
       "type": "string",
-      "default": "99y"
+      "default": "7d"
     },
     "tokenIssuer": {
       "description": "The identity of the issuer of the token",
