@@ -15,7 +15,7 @@
         "isSecret": true 
       }
     },
-    "tokenLifespan": {
+    "defaultTokenLifespan": {
       "description": "How long a token should remain valid for",
       "type": "string",
       "default": "7d"
