@@ -42,6 +42,13 @@
     "description": "Request is not authorised to perform the required operation",
     "statusCode": 403
   },
+  "UNKNOWN_AUTH_TYPE": {
+    "data": {
+      "authType": "Authentication type"
+    },
+    "description": "Request is attempting to use an unknown authentication type",
+    "statusCode": 401
+  },
   "USER_REG_FAILED": {
     "description": "User registration failed",
     "statusCode": 400
