@@ -5,14 +5,13 @@
   "$merge": {
     "with": {
       "properties": {
-        "authTypes": {
+        "authType": {
           "description": "Types of authentication used with this user",
-          "type": "array",
-          "items": { "type": "string" },
-          "isReadOnly": true,
-          "default": []
+          "type": "string",
+          "isReadOnly": true
         }
-      }
+      },
+      "required": ["authType"]
     }
   }
 }
