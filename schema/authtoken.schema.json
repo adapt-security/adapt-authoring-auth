@@ -6,7 +6,8 @@
   "properties": {
     "signature": {
       "description": "The JWT token signature for verification purposes",
-      "type": "string"
+      "type": "string",
+      "isInternal": true
     },
     "userId": {
       "description": "ID of the user this token belongs to",
