@@ -9,6 +9,7 @@
           "description": "Types of authentication used with this user",
           "type": "array",
           "items": { "type": "string" },
+          "isReadOnly": true,
           "default": []
         }
       }
