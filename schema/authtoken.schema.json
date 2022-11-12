@@ -12,13 +12,15 @@
     "userId": {
       "description": "ID of the user this token belongs to",
       "type": "string",
-      "isObjectId": true
+      "isObjectId": true,
+      "isReadOnly": true
     },
     "createdAt": {
       "description": "Token creation timestamp",
       "type": "string",
       "format": "date-time",
-      "isDate": true
+      "isDate": true,
+      "isReadOnly": true
     },
     "usedAt": {
       "description": "Token last use timestamp",
@@ -29,7 +31,8 @@
     },
     "authType": {
       "description": "Type of authentication used with this token",
-      "type": "string"
+      "type": "string",
+      "isReadOnly": true
     }
   },
   "required": ["signature", "userId", "createdAt", "authType"]
