@@ -20,6 +20,13 @@
       "format": "date-time",
       "isDate": true
     },
+    "usedAt": {
+      "description": "Token last use timestamp",
+      "type": "string",
+      "format": "date-time",
+      "isDate": true,
+      "isReadOnly": true
+    },
     "authType": {
       "description": "Type of authentication used with this token",
       "type": "string"
