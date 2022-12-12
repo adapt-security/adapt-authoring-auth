@@ -18,6 +18,20 @@
     "description": "Auth token has expired, a new one must be created",
     "statusCode": 401
   },
+  "AUTH_TOKEN_INVALID": {
+    "data": {
+      "error": "The error message"
+    },
+    "description": "Auth token is not valid",
+    "statusCode": 401
+  },
+  "AUTH_TOKEN_NOT_BEFORE": {
+    "data": {
+      "error": "The error message"
+    },
+    "description": "The auth token nbf is after the current time, and the token is therefore not valid",
+    "statusCode": 401
+  },
   "AUTH_TYPE_DEF_MISSING": {
     "description": "Auth type is not defined",
     "statusCode": 500
