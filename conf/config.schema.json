@@ -7,6 +7,21 @@
       "type": "boolean",
       "default": true
     },
+    "defaultTokenLifespan": {
+      "description": "How long a token should remain valid for",
+      "type": "string",
+      "default": "7d"
+    },
+    "logMissingPermissions": {
+      "description": "In enabled, a warning is logged on app start for any routes with missing permissions (note: any routes without defined permissions are inaccessible)",
+      "type": "boolean",
+      "default": true
+    },
+    "secureTokenGeneration": {
+      "description": "Whether a user must be authenticated to generate an API auth token",
+      "type": "boolean",
+      "default": true
+    },
     "tokenSecret": {
       "description": "A secret used to encode/decode Json Web Tokens",
       "type": "string",
@@ -15,20 +30,10 @@
         "isSecret": true 
       }
     },
-    "defaultTokenLifespan": {
-      "description": "How long a token should remain valid for",
-      "type": "string",
-      "default": "7d"
-    },
     "tokenIssuer": {
       "description": "The identity of the issuer of the token",
       "type": "string",
       "default": "adapt"
-    },
-    "logMissingPermissions": {
-      "description": "In enabled, a warning is logged on app start for any routes with missing permissions (note: any routes without defined permissions are inaccessible)",
-      "type": "boolean",
-      "default": true
     }
   },
   "required": ["tokenSecret"]
