@@ -40,6 +40,10 @@
     "description": "An auth plugin is already registered with the same name",
     "statusCode": 500
   },
+  "INVALID_LOGIN_DETAILS": {
+    "description": "Invalid login details were provided",
+    "statusCode": 401
+  },
   "MISSING_AUTH_HEADER": {
     "description": "Authorization headers are missing from request",
     "statusCode": 401
