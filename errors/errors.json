@@ -68,6 +68,9 @@
     "statusCode": 401
   },
   "USER_REG_FAILED": {
+    "data": {
+      "error": "The error"
+    },
     "description": "User registration failed",
     "statusCode": 400
   }
