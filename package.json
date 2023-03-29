@@ -11,7 +11,7 @@
     "adapt-authoring-roles": "github:adapt-security/adapt-authoring-roles",
     "adapt-authoring-users": "github:adapt-security/adapt-authoring-users",
     "express-session": "1.17.2",
-    "jsonwebtoken": "8.5.1",
+    "jsonwebtoken": "9.0.0",
     "path-to-regexp": "^6.2.0"
   },
   "peerDependencies": {
