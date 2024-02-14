@@ -12,13 +12,13 @@
     "adapt-authoring-users": "github:adapt-security/adapt-authoring-users",
     "express-session": "1.17.2",
     "jsonwebtoken": "9.0.0",
-    "path-to-regexp": "^6.2.0"
+    "path-to-regexp": "^6.2.1"
   },
   "peerDependencies": {
     "adapt-authoring-core": "github:adapt-security/adapt-authoring-core"
   },
   "devDependencies": {
-    "eslint": "^8.36.0",
-    "standard": "^17.0.0"
+    "eslint": "^8.56.0",
+    "standard": "^17.1.0"
   }
 }
