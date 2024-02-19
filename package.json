@@ -15,7 +15,12 @@
     "path-to-regexp": "^6.2.1"
   },
   "peerDependencies": {
-    "adapt-authoring-core": "github:adapt-security/adapt-authoring-core"
+    "adapt-authoring-auth": "github:adapt-security/adapt-authoring-auth",
+    "adapt-authoring-core": "github:adapt-security/adapt-authoring-core",
+    "adapt-authoring-jsonschema": "github:adapt-security/adapt-authoring-jsonschema",
+    "adapt-authoring-mongodb": "github:adapt-security/adapt-authoring-mongodb",
+    "adapt-authoring-server": "github:adapt-security/adapt-authoring-server",
+    "adapt-authoring-sessions": "github:adapt-security/adapt-authoring-sessions"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
