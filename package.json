@@ -10,7 +10,7 @@
   "dependencies": {
     "adapt-authoring-roles": "github:adapt-security/adapt-authoring-roles",
     "adapt-authoring-users": "github:adapt-security/adapt-authoring-users",
-    "express-session": "1.18.1",
+    "express-session": "1.18.2",
     "jsonwebtoken": "9.0.2",
     "path-to-regexp": "^8.0.0"
   },
