@@ -1,5 +1,9 @@
 {
   "documentation": {
-    "enable": true
+    "enable": true,
+    "manualPages": {
+      "aut-permissions.md": "basics",
+      "creating-auth-plugins.md": "advanced"
+    }
   }
 }
