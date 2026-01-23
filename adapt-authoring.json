@@ -3,7 +3,7 @@
     "enable": true,
     "manualPages": {
       "auth-permissions.md": "basics",
-      "creating-auth-plugins.md": "advanced"
+      "creating-auth-plugins.md": "development"
     }
   }
 }
