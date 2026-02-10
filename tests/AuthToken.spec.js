@@ -16,8 +16,8 @@ describe('AuthToken', () => {
       assert.equal(signature, undefined)
     })
 
-    it('should handle token with multiple parts', () => {
-      const token = 'header.payload.signature'
+    it('should extract third part from token with more than three parts', () => {
+      const token = 'header.payload.signature.extra'
       const signature = AuthToken.getSignature(token)
       assert.equal(signature, 'signature')
     })
@@ -45,7 +45,7 @@ describe('AuthToken', () => {
       assert.equal(AuthToken.isSuper(scopes), false)
     })
 
-    it('should return false for multiple scopes including super', () => {
+    it('should return false when super scope is not the only scope', () => {
       const scopes = ['*:*', 'read:users']
       assert.equal(AuthToken.isSuper(scopes), false)
     })
