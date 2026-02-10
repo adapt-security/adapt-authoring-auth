@@ -7,6 +7,9 @@
   "type": "module",
   "main": "index.js",
   "repository": "github:adapt-security/adapt-authoring-auth",
+  "scripts": {
+    "test": "node --test 'tests/**/*.spec.js'"
+  },
   "dependencies": {
     "adapt-authoring-roles": "github:adapt-security/adapt-authoring-roles",
     "adapt-authoring-users": "github:adapt-security/adapt-authoring-users",
