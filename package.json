@@ -15,7 +15,36 @@
     "path-to-regexp": "^8.0.0"
   },
   "peerDependencies": {
-    "adapt-authoring-core": "github:adapt-security/adapt-authoring-core"
+    "adapt-authoring-core": "^1.7.0",
+    "adapt-authoring-jsonschema": "^1.1.5",
+    "adapt-authoring-mongodb": "^1.1.2",
+    "adapt-authoring-roles": "^1.1.2",
+    "adapt-authoring-server": "^1.2.0",
+    "adapt-authoring-sessions": "^1.0.1",
+    "adapt-authoring-users": "^1.0.1"
+  },
+  "peerDependenciesMeta": {
+    "adapt-authoring-core": {
+      "optional": true
+    },
+    "adapt-authoring-jsonschema": {
+      "optional": true
+    },
+    "adapt-authoring-mongodb": {
+      "optional": true
+    },
+    "adapt-authoring-roles": {
+      "optional": true
+    },
+    "adapt-authoring-server": {
+      "optional": true
+    },
+    "adapt-authoring-sessions": {
+      "optional": true
+    },
+    "adapt-authoring-users": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@semantic-release/git": "^10.0.1",
@@ -39,7 +68,15 @@
       ],
       "@semantic-release/npm",
       "@semantic-release/github",
-      "@semantic-release/git"
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json"
+          ],
+          "message": "Chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ]
     ]
   }
 }
