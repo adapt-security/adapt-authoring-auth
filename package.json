@@ -8,33 +8,36 @@
   "main": "index.js",
   "repository": "github:adapt-security/adapt-authoring-auth",
   "dependencies": {
-    "adapt-authoring-roles": "github:adapt-security/adapt-authoring-roles",
-    "adapt-authoring-users": "github:adapt-security/adapt-authoring-users",
+    "adapt-authoring-core": "^1.7.0",
     "express-session": "1.19.0",
     "jsonwebtoken": "9.0.3",
     "path-to-regexp": "^8.0.0"
   },
   "peerDependencies": {
-    "adapt-authoring-core": "^1.7.0",
     "adapt-authoring-jsonschema": "^1.2.0",
     "adapt-authoring-mongodb": "^1.1.3",
+    "adapt-authoring-roles": "^1.1.3",
     "adapt-authoring-server": "^1.2.1",
-    "adapt-authoring-sessions": "^1.0.2"
+    "adapt-authoring-sessions": "^1.0.2",
+    "adapt-authoring-users": "^1.0.2"
   },
   "peerDependenciesMeta": {
-    "adapt-authoring-core": {
-      "optional": true
-    },
     "adapt-authoring-jsonschema": {
       "optional": true
     },
     "adapt-authoring-mongodb": {
       "optional": true
     },
+    "adapt-authoring-roles": {
+      "optional": true
+    },
     "adapt-authoring-server": {
       "optional": true
     },
     "adapt-authoring-sessions": {
+      "optional": true
+    },
+    "adapt-authoring-users": {
       "optional": true
     }
   },
