@@ -7,6 +7,9 @@
   "type": "module",
   "main": "index.js",
   "repository": "github:adapt-security/adapt-authoring-auth",
+  "scripts": {
+    "test": "node --test 'tests/**/*.spec.js'"
+  },
   "dependencies": {
     "adapt-authoring-core": "^1.7.0",
     "express-session": "1.19.0",
