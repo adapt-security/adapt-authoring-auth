@@ -18,6 +18,18 @@ describe('AuthUtils', () => {
       assert.equal(store.patch.length, 0)
       assert.equal(store.delete.length, 0)
     })
+
+    it('should return exactly five HTTP method keys', () => {
+      const store = AuthUtils.createEmptyStore()
+      assert.equal(Object.keys(store).length, 5)
+    })
+
+    it('should return a new object each time', () => {
+      const store1 = AuthUtils.createEmptyStore()
+      const store2 = AuthUtils.createEmptyStore()
+      assert.notEqual(store1, store2)
+      assert.notEqual(store1.post, store2.post)
+    })
   })
 
   describe('#initAuthData()', () => {
@@ -64,6 +76,27 @@ describe('AuthUtils', () => {
       assert.equal(typeof req.auth.header, 'object')
       assert.equal(req.auth.header.type, 'Bearer')
       assert.equal(req.auth.header.value, undefined)
+    })
+
+    it('should prefer req.get() over req.headers', async () => {
+      const req = {
+        get: (header) => header === 'Authorization' ? 'Bearer fromGet' : undefined,
+        headers: { Authorization: 'Basic fromHeaders' }
+      }
+      await AuthUtils.initAuthData(req)
+      assert.equal(req.auth.header.type, 'Bearer')
+      assert.equal(req.auth.header.value, 'fromGet')
+    })
+
+    it('should overwrite any existing req.auth', async () => {
+      const req = {
+        get: () => undefined,
+        headers: {},
+        auth: { stale: true }
+      }
+      await AuthUtils.initAuthData(req)
+      assert.deepEqual(req.auth, {})
+      assert.equal(req.auth.stale, undefined)
     })
   })
 })

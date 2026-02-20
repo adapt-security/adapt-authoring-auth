@@ -1,12 +1,36 @@
-import { describe, it, before } from 'node:test'
+import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
+import { App } from 'adapt-authoring-core'
 import Permissions from '../lib/Permissions.js'
+
+function mockAppInstance (mockApp) {
+  Object.defineProperty(App, 'instance', {
+    get: () => mockApp,
+    configurable: true
+  })
+}
+
+function restoreAppInstance () {
+  delete App.instance
+}
 
 describe('Permissions', () => {
   let permissions
 
   before(async () => {
+    mockAppInstance({
+      onReady: () => Promise.resolve({
+        waitForModule: async () => [
+          { getConfig: () => false }, // auth with logMissingPermissions=false
+          { api: { flattenRouters: () => [] } } // server
+        ]
+      })
+    })
     permissions = await Permissions.init()
+  })
+
+  after(() => {
+    restoreAppInstance()
   })
 
   describe('#secureRoute()', () => {
@@ -26,6 +50,23 @@ describe('Permissions', () => {
       permissions.secureRoute('/api/resources/:resourceId/items/:itemId', 'put', ['write:resources'])
       const scopes = permissions.getScopesForRoute('put', '/api/resources/abc/items/xyz')
       assert.deepEqual(scopes, ['write:resources'])
+    })
+
+    it('should normalize HTTP method to lowercase', () => {
+      permissions.secureRoute('/api/admin', 'DELETE', ['delete:admin'])
+      const scopes = permissions.getScopesForRoute('delete', '/api/admin')
+      assert.deepEqual(scopes, ['delete:admin'])
+    })
+
+    it('should store routes as regexp/scopes pairs', () => {
+      const initialLength = permissions.routes.patch.length
+      permissions.secureRoute('/api/items/:id', 'patch', ['update:items'])
+      assert.equal(permissions.routes.patch.length, initialLength + 1)
+      const entry = permissions.routes.patch[permissions.routes.patch.length - 1]
+      assert.ok(Array.isArray(entry))
+      assert.equal(entry.length, 2)
+      assert.ok(entry[0] instanceof RegExp)
+      assert.deepEqual(entry[1], ['update:items'])
     })
   })
 
@@ -51,6 +92,63 @@ describe('Permissions', () => {
       permissions.secureRoute('/api/exact/path', 'get', ['read:exact'])
       const scopes = permissions.getScopesForRoute('get', '/api/exact/path')
       assert.deepEqual(scopes, ['read:exact'])
+    })
+
+    it('should not match partial path', () => {
+      permissions.secureRoute('/api/full', 'get', ['read:full'])
+      const scopes = permissions.getScopesForRoute('get', '/api/full/extra')
+      assert.equal(scopes, undefined)
+    })
+  })
+
+  describe('#check()', () => {
+    it('should allow super users regardless of scopes', async () => {
+      permissions.secureRoute('/api/restricted', 'get', ['admin:all'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/restricted',
+        method: 'get',
+        auth: { isSuper: true, scopes: ['*:*'] }
+      }
+
+      await assert.doesNotReject(() => permissions.check(req))
+    })
+
+    it('should allow users with matching scopes', async () => {
+      permissions.secureRoute('/api/data', 'get', ['read:data'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/data',
+        method: 'get',
+        auth: { isSuper: false, scopes: ['read:data', 'write:data'] }
+      }
+
+      await assert.doesNotReject(() => permissions.check(req))
+    })
+
+    it('should strip trailing slash from path', async () => {
+      permissions.secureRoute('/api/trailing', 'get', ['read:trailing'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/trailing/',
+        method: 'get',
+        auth: { isSuper: false, scopes: ['read:trailing'] }
+      }
+
+      await assert.doesNotReject(() => permissions.check(req))
+    })
+  })
+
+  describe('constructor', () => {
+    it('should initialize routes as empty store', () => {
+      assert.ok(Array.isArray(permissions.routes.get))
+      assert.ok(Array.isArray(permissions.routes.post))
+      assert.ok(Array.isArray(permissions.routes.put))
+      assert.ok(Array.isArray(permissions.routes.patch))
+      assert.ok(Array.isArray(permissions.routes.delete))
     })
   })
 })

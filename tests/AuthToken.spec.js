@@ -27,6 +27,18 @@ describe('AuthToken', () => {
       const signature = AuthToken.getSignature(token)
       assert.equal(signature, '')
     })
+
+    it('should handle token with only two parts', () => {
+      const token = 'header.payload'
+      const signature = AuthToken.getSignature(token)
+      assert.equal(signature, undefined)
+    })
+
+    it('should handle realistic JWT signature', () => {
+      const token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.abc123def456'
+      const signature = AuthToken.getSignature(token)
+      assert.equal(signature, 'abc123def456')
+    })
   })
 
   describe('#isSuper()', () => {
@@ -53,6 +65,45 @@ describe('AuthToken', () => {
     it('should return false for similar but not exact super scope', () => {
       const scopes = ['*:']
       assert.equal(AuthToken.isSuper(scopes), false)
+    })
+
+    it('should return false for partial wildcard scopes', () => {
+      assert.equal(AuthToken.isSuper(['*:users']), false)
+      assert.equal(AuthToken.isSuper(['read:*']), false)
+    })
+
+    it('should return false for single non-super scope', () => {
+      assert.equal(AuthToken.isSuper(['admin:all']), false)
+    })
+  })
+
+  describe('.generate()', () => {
+    it('should be a static method', () => {
+      assert.equal(typeof AuthToken.generate, 'function')
+    })
+  })
+
+  describe('.decode()', () => {
+    it('should be a static method', () => {
+      assert.equal(typeof AuthToken.decode, 'function')
+    })
+  })
+
+  describe('.find()', () => {
+    it('should be a static method', () => {
+      assert.equal(typeof AuthToken.find, 'function')
+    })
+  })
+
+  describe('.revoke()', () => {
+    it('should be a static method', () => {
+      assert.equal(typeof AuthToken.revoke, 'function')
+    })
+  })
+
+  describe('.initRequestData()', () => {
+    it('should be a static method', () => {
+      assert.equal(typeof AuthToken.initRequestData, 'function')
     })
   })
 })
