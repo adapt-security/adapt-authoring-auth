@@ -30,6 +30,31 @@ describe('AuthUtils', () => {
       assert.notEqual(store1, store2)
       assert.notEqual(store1.post, store2.post)
     })
+
+    it('should include all five standard HTTP methods', () => {
+      const store = AuthUtils.createEmptyStore()
+      const keys = Object.keys(store)
+      assert.ok(keys.includes('post'))
+      assert.ok(keys.includes('get'))
+      assert.ok(keys.includes('put'))
+      assert.ok(keys.includes('patch'))
+      assert.ok(keys.includes('delete'))
+    })
+
+    it('should have independent arrays that do not share references', () => {
+      const store = AuthUtils.createEmptyStore()
+      store.get.push('test')
+      assert.equal(store.get.length, 1)
+      assert.equal(store.post.length, 0)
+    })
+
+    it('should not affect other stores when modified', () => {
+      const store1 = AuthUtils.createEmptyStore()
+      const store2 = AuthUtils.createEmptyStore()
+      store1.get.push('route1')
+      assert.equal(store1.get.length, 1)
+      assert.equal(store2.get.length, 0)
+    })
   })
 
   describe('#initAuthData()', () => {
@@ -97,6 +122,56 @@ describe('AuthUtils', () => {
       await AuthUtils.initAuthData(req)
       assert.deepEqual(req.auth, {})
       assert.equal(req.auth.stale, undefined)
+    })
+
+    it('should not set header property when no Authorization header', async () => {
+      const req = {
+        get: () => undefined,
+        headers: {}
+      }
+      await AuthUtils.initAuthData(req)
+      assert.equal(req.auth.header, undefined)
+    })
+
+    it('should handle token values containing spaces', async () => {
+      const req = {
+        get: () => 'Bearer token with spaces',
+        headers: {}
+      }
+      await AuthUtils.initAuthData(req)
+      assert.equal(req.auth.header.type, 'Bearer')
+      assert.equal(req.auth.header.value, 'token')
+    })
+
+    it('should return undefined and still set auth when header is missing', async () => {
+      const req = {
+        get: () => null,
+        headers: {}
+      }
+      const result = await AuthUtils.initAuthData(req)
+      assert.equal(result, undefined)
+      assert.deepEqual(req.auth, {})
+    })
+
+    it('should handle empty string Authorization header', async () => {
+      const req = {
+        get: () => '',
+        headers: {}
+      }
+      await AuthUtils.initAuthData(req)
+      assert.deepEqual(req.auth, {})
+    })
+  })
+
+  describe('#getConfig()', () => {
+    it('should be a static method', () => {
+      assert.equal(typeof AuthUtils.getConfig, 'function')
+    })
+  })
+
+  describe('#log()', () => {
+    it('should be a static method', () => {
+      assert.equal(typeof AuthUtils.log, 'function')
     })
   })
 })

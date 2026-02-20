@@ -21,7 +21,8 @@ function createMockApp () {
       },
       INVALID_PARAMS: {
         setData: (data) => Object.assign(new Error(`Invalid params: ${data.params}`), { code: 'INVALID_PARAMS' })
-      }
+      },
+      UNAUTHENTICATED: Object.assign(new Error('Unauthenticated'), { code: 'UNAUTHENTICATED' })
     }
   }
 }
@@ -34,7 +35,6 @@ function mockAppInstance (mockApp) {
 }
 
 function restoreAppInstance () {
-  // Delete the overridden property to restore the original getter from the prototype
   delete App.instance
 }
 
@@ -55,6 +55,11 @@ describe('Authentication', () => {
       const authentication = new Authentication()
       assert.equal(typeof authentication.plugins, 'object')
       assert.equal(Object.keys(authentication.plugins).length, 0)
+    })
+
+    it('should create an empty plugins object', () => {
+      const authentication = new Authentication()
+      assert.deepEqual(authentication.plugins, {})
     })
   })
 
@@ -100,6 +105,47 @@ describe('Authentication', () => {
       assert.equal(authentication.plugins.oauth, plugin2)
       assert.equal(Object.keys(authentication.plugins).length, 2)
     })
+
+    it('should throw for null instance', () => {
+      const authentication = new Authentication()
+      assert.throws(() => {
+        authentication.registerPlugin('test', null)
+      })
+    })
+
+    it('should throw for plain object instance', () => {
+      const authentication = new Authentication()
+      assert.throws(() => {
+        authentication.registerPlugin('test', {})
+      }, (err) => {
+        assert.equal(err.code, 'AUTH_PLUGIN_INVALID_CLASS')
+        return true
+      })
+    })
+
+    it('should include type name in error data for duplicates', () => {
+      const authentication = new Authentication()
+      const plugin = new AbstractAuthModule(mockApp, { name: 'test-plugin' })
+      authentication.registerPlugin('mytype', plugin)
+
+      assert.throws(() => {
+        authentication.registerPlugin('mytype', plugin)
+      }, (err) => {
+        assert.ok(err.message.includes('mytype'))
+        return true
+      })
+    })
+
+    it('should include type name in error data for invalid class', () => {
+      const authentication = new Authentication()
+
+      assert.throws(() => {
+        authentication.registerPlugin('badplugin', {})
+      }, (err) => {
+        assert.ok(err.message.includes('badplugin'))
+        return true
+      })
+    })
   })
 
   describe('#registerUser()', () => {
@@ -135,6 +181,38 @@ describe('Authentication', () => {
       assert.equal(insertedData.data.authType, 'local')
       assert.equal(insertedData.opts.schemaName, 'localuser')
     })
+
+    it('should include authType in inserted data', async () => {
+      const authentication = new Authentication()
+      let capturedData
+      mockApp.waitForModule = async () => ({
+        insert: (data, opts) => { capturedData = data; return data }
+      })
+
+      const plugin = new AbstractAuthModule(mockApp, { name: 'test-plugin' })
+      plugin.userSchema = 'user'
+      authentication.plugins.oauth = plugin
+
+      await authentication.registerUser('oauth', { email: 'oauth@test.com', name: 'Test' })
+      assert.equal(capturedData.authType, 'oauth')
+      assert.equal(capturedData.email, 'oauth@test.com')
+      assert.equal(capturedData.name, 'Test')
+    })
+
+    it('should use the plugin userSchema for insert options', async () => {
+      const authentication = new Authentication()
+      let capturedOpts
+      mockApp.waitForModule = async () => ({
+        insert: (data, opts) => { capturedOpts = opts; return data }
+      })
+
+      const plugin = new AbstractAuthModule(mockApp, { name: 'test-plugin' })
+      plugin.userSchema = 'customschema'
+      authentication.plugins.custom = plugin
+
+      await authentication.registerUser('custom', { email: 'x@y.com' })
+      assert.equal(capturedOpts.schemaName, 'customschema')
+    })
   })
 
   describe('#disavowUser()', () => {
@@ -148,6 +226,107 @@ describe('Authentication', () => {
           return true
         }
       )
+    })
+
+    it('should throw INVALID_PARAMS when query has no userId', async () => {
+      const authentication = new Authentication()
+
+      await assert.rejects(
+        () => authentication.disavowUser({ signature: 'abc' }),
+        (err) => {
+          assert.equal(err.code, 'INVALID_PARAMS')
+          return true
+        }
+      )
+    })
+
+    it('should throw INVALID_PARAMS for empty query', async () => {
+      const authentication = new Authentication()
+
+      await assert.rejects(
+        () => authentication.disavowUser({}),
+        (err) => {
+          assert.ok(err.message.includes('userId'))
+          return true
+        }
+      )
+    })
+  })
+
+  describe('#checkHandler()', () => {
+    it('should send UNAUTHENTICATED error when no auth header', async () => {
+      const authentication = new Authentication()
+      let sentError
+      const req = { auth: {} }
+      const res = {
+        sendError: (e) => { sentError = e }
+      }
+
+      await authentication.checkHandler(req, res, () => {})
+      assert.equal(sentError.code, 'UNAUTHENTICATED')
+    })
+
+    it('should call sendError for caught errors', async () => {
+      const authentication = new Authentication()
+      let sendErrorCalled = false
+      const req = { auth: {} }
+      const res = {
+        sendError: () => { sendErrorCalled = true }
+      }
+
+      await authentication.checkHandler(req, res, () => {})
+      assert.equal(sendErrorCalled, true)
+    })
+  })
+
+  describe('#disavowHandler()', () => {
+    it('should call next with error on failure', async () => {
+      const authentication = new Authentication()
+      const error = new Error('disavow failed')
+      authentication.disavowUser = async () => { throw error }
+
+      let nextArg
+      const req = {
+        auth: {
+          user: { _id: 'u1' },
+          token: { signature: 'sig123' }
+        }
+      }
+      const res = {}
+
+      await authentication.disavowHandler(req, res, (e) => { nextArg = e })
+      assert.equal(nextArg, error)
+    })
+  })
+
+  describe('#generateTokenHandler()', () => {
+    it('should call next with error on failure', async () => {
+      const authentication = new Authentication()
+      let nextArg
+      const req = {
+        auth: { user: { _id: 'u1', email: 'test@test.com' } },
+        body: { lifespan: '1h' }
+      }
+      const res = {}
+
+      // AuthToken.generate will fail without proper App.instance setup
+      await authentication.generateTokenHandler(req, res, (e) => { nextArg = e })
+      assert.ok(nextArg instanceof Error || typeof nextArg === 'object')
+    })
+  })
+
+  describe('#retrieveTokensHandler()', () => {
+    it('should call next with error on failure', async () => {
+      const authentication = new Authentication()
+      let nextArg
+      const req = {
+        auth: { user: { _id: 'u1' } }
+      }
+      const res = {}
+
+      // AuthToken.find will fail without proper App.instance setup
+      await authentication.retrieveTokensHandler(req, res, (e) => { nextArg = e })
+      assert.ok(nextArg instanceof Error || typeof nextArg === 'object')
     })
   })
 

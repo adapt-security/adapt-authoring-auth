@@ -21,8 +21,8 @@ describe('Permissions', () => {
     mockAppInstance({
       onReady: () => Promise.resolve({
         waitForModule: async () => [
-          { getConfig: () => false }, // auth with logMissingPermissions=false
-          { api: { flattenRouters: () => [] } } // server
+          { getConfig: () => false },
+          { api: { flattenRouters: () => [] } }
         ]
       })
     })
@@ -31,6 +31,35 @@ describe('Permissions', () => {
 
   after(() => {
     restoreAppInstance()
+  })
+
+  describe('static #init()', () => {
+    it('should return a Permissions instance', async () => {
+      mockAppInstance({
+        onReady: () => Promise.resolve({
+          waitForModule: async () => [
+            { getConfig: () => false },
+            { api: { flattenRouters: () => [] } }
+          ]
+        })
+      })
+      const instance = await Permissions.init()
+      assert.ok(instance instanceof Permissions)
+    })
+  })
+
+  describe('constructor', () => {
+    it('should initialize routes as empty store', () => {
+      assert.ok(Array.isArray(permissions.routes.get))
+      assert.ok(Array.isArray(permissions.routes.post))
+      assert.ok(Array.isArray(permissions.routes.put))
+      assert.ok(Array.isArray(permissions.routes.patch))
+      assert.ok(Array.isArray(permissions.routes.delete))
+    })
+
+    it('should have five HTTP method keys', () => {
+      assert.equal(Object.keys(permissions.routes).length, 5)
+    })
   })
 
   describe('#secureRoute()', () => {
@@ -68,6 +97,19 @@ describe('Permissions', () => {
       assert.ok(entry[0] instanceof RegExp)
       assert.deepEqual(entry[1], ['update:items'])
     })
+
+    it('should handle routes with no path parameters', () => {
+      permissions.secureRoute('/api/static/endpoint', 'get', ['read:static'])
+      const scopes = permissions.getScopesForRoute('get', '/api/static/endpoint')
+      assert.deepEqual(scopes, ['read:static'])
+    })
+
+    it('should allow securing same path for different methods', () => {
+      permissions.secureRoute('/api/dual', 'get', ['read:dual'])
+      permissions.secureRoute('/api/dual', 'post', ['write:dual'])
+      assert.deepEqual(permissions.getScopesForRoute('get', '/api/dual'), ['read:dual'])
+      assert.deepEqual(permissions.getScopesForRoute('post', '/api/dual'), ['write:dual'])
+    })
   })
 
   describe('#getScopesForRoute()', () => {
@@ -98,6 +140,17 @@ describe('Permissions', () => {
       permissions.secureRoute('/api/full', 'get', ['read:full'])
       const scopes = permissions.getScopesForRoute('get', '/api/full/extra')
       assert.equal(scopes, undefined)
+    })
+
+    it('should return undefined for completely unknown route', () => {
+      const scopes = permissions.getScopesForRoute('get', '/totally/unknown/route')
+      assert.equal(scopes, undefined)
+    })
+
+    it('should return first matching route scopes', () => {
+      permissions.secureRoute('/api/first/:id', 'get', ['read:first'])
+      const scopes = permissions.getScopesForRoute('get', '/api/first/test')
+      assert.deepEqual(scopes, ['read:first'])
     })
   })
 
@@ -140,15 +193,121 @@ describe('Permissions', () => {
 
       await assert.doesNotReject(() => permissions.check(req))
     })
-  })
 
-  describe('constructor', () => {
-    it('should initialize routes as empty store', () => {
-      assert.ok(Array.isArray(permissions.routes.get))
-      assert.ok(Array.isArray(permissions.routes.post))
-      assert.ok(Array.isArray(permissions.routes.put))
-      assert.ok(Array.isArray(permissions.routes.patch))
-      assert.ok(Array.isArray(permissions.routes.delete))
+    it('should throw UNAUTHORISED when user lacks required scopes', async () => {
+      mockAppInstance({
+        onReady: () => Promise.resolve({
+          waitForModule: async () => [
+            { getConfig: () => false, log: () => {} },
+            { api: { flattenRouters: () => [] } }
+          ]
+        }),
+        waitForModule: async () => ({ log: () => {} }),
+        errors: {
+          UNAUTHORISED: Object.assign(
+            new Error('Unauthorised'),
+            { code: 'UNAUTHORISED', setData: function (d) { Object.assign(this, d); return this } }
+          )
+        }
+      })
+
+      const p = new Permissions()
+      p.secureRoute('/api/secret', 'get', ['admin:secret'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/secret',
+        method: 'get',
+        auth: { isSuper: false, scopes: ['read:public'] }
+      }
+
+      await assert.rejects(() => p.check(req))
+    })
+
+    it('should throw UNAUTHORISED when user has empty scopes', async () => {
+      mockAppInstance({
+        onReady: () => Promise.resolve({
+          waitForModule: async () => [
+            { getConfig: () => false, log: () => {} },
+            { api: { flattenRouters: () => [] } }
+          ]
+        }),
+        waitForModule: async () => ({ log: () => {} }),
+        errors: {
+          UNAUTHORISED: Object.assign(
+            new Error('Unauthorised'),
+            { code: 'UNAUTHORISED', setData: function (d) { Object.assign(this, d); return this } }
+          )
+        }
+      })
+
+      const p = new Permissions()
+      p.secureRoute('/api/protected', 'get', ['read:protected'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/protected',
+        method: 'get',
+        auth: { isSuper: false, scopes: [] }
+      }
+
+      await assert.rejects(() => p.check(req))
+    })
+
+    it('should use lowercase method for scope lookup', async () => {
+      permissions.secureRoute('/api/methodtest', 'post', ['write:methodtest'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/methodtest',
+        method: 'POST',
+        auth: { isSuper: false, scopes: ['write:methodtest'] }
+      }
+
+      await assert.doesNotReject(() => permissions.check(req))
+    })
+
+    it('should handle path without trailing slash', async () => {
+      permissions.secureRoute('/api/noslash', 'get', ['read:noslash'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/noslash',
+        method: 'get',
+        auth: { isSuper: false, scopes: ['read:noslash'] }
+      }
+
+      await assert.doesNotReject(() => permissions.check(req))
+    })
+
+    it('should default to empty scopes array when req.auth.scopes is undefined', async () => {
+      mockAppInstance({
+        onReady: () => Promise.resolve({
+          waitForModule: async () => [
+            { getConfig: () => false, log: () => {} },
+            { api: { flattenRouters: () => [] } }
+          ]
+        }),
+        waitForModule: async () => ({ log: () => {} }),
+        errors: {
+          UNAUTHORISED: Object.assign(
+            new Error('Unauthorised'),
+            { code: 'UNAUTHORISED', setData: function (d) { Object.assign(this, d); return this } }
+          )
+        }
+      })
+
+      const p = new Permissions()
+      p.secureRoute('/api/noscopes', 'get', ['read:noscopes'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/noscopes',
+        method: 'get',
+        auth: { isSuper: false }
+      }
+
+      await assert.rejects(() => p.check(req))
     })
   })
 })
