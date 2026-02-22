@@ -24,26 +24,6 @@
     "adapt-authoring-sessions": "^1.0.2",
     "adapt-authoring-users": "^1.0.2"
   },
-  "peerDependenciesMeta": {
-    "adapt-authoring-jsonschema": {
-      "optional": true
-    },
-    "adapt-authoring-mongodb": {
-      "optional": true
-    },
-    "adapt-authoring-roles": {
-      "optional": true
-    },
-    "adapt-authoring-server": {
-      "optional": true
-    },
-    "adapt-authoring-sessions": {
-      "optional": true
-    },
-    "adapt-authoring-users": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "@semantic-release/git": "^10.0.1",
     "conventional-changelog-eslint": "^6.0.0",
