@@ -1,11 +1,12 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import AuthUtils from '../lib/AuthUtils.js'
+import { createEmptyStore } from '../lib/utils/createEmptyStore.js'
+import { initAuthData } from '../lib/utils/initAuthData.js'
 
 describe('AuthUtils', () => {
-  describe('#createEmptyStore()', () => {
+  describe('createEmptyStore()', () => {
     it('should return an object with empty arrays for HTTP methods', () => {
-      const store = AuthUtils.createEmptyStore()
+      const store = createEmptyStore()
       assert.equal(typeof store, 'object')
       assert.ok(Array.isArray(store.post))
       assert.ok(Array.isArray(store.get))
@@ -20,25 +21,25 @@ describe('AuthUtils', () => {
     })
 
     it('should return exactly five HTTP method keys', () => {
-      const store = AuthUtils.createEmptyStore()
+      const store = createEmptyStore()
       assert.equal(Object.keys(store).length, 5)
     })
 
     it('should return a new object each time', () => {
-      const store1 = AuthUtils.createEmptyStore()
-      const store2 = AuthUtils.createEmptyStore()
+      const store1 = createEmptyStore()
+      const store2 = createEmptyStore()
       assert.notEqual(store1, store2)
       assert.notEqual(store1.post, store2.post)
     })
   })
 
-  describe('#initAuthData()', () => {
+  describe('initAuthData()', () => {
     it('should initialize req.auth as empty object when no auth header', async () => {
       const req = {
         get: () => undefined,
         headers: {}
       }
-      await AuthUtils.initAuthData(req)
+      await initAuthData(req)
       assert.deepEqual(req.auth, {})
     })
 
@@ -47,7 +48,7 @@ describe('AuthUtils', () => {
         get: (header) => header === 'Authorization' ? 'Bearer abc123' : undefined,
         headers: {}
       }
-      await AuthUtils.initAuthData(req)
+      await initAuthData(req)
       assert.equal(typeof req.auth, 'object')
       assert.equal(typeof req.auth.header, 'object')
       assert.equal(req.auth.header.type, 'Bearer')
@@ -59,7 +60,7 @@ describe('AuthUtils', () => {
         get: () => undefined,
         headers: { Authorization: 'Basic xyz789' }
       }
-      await AuthUtils.initAuthData(req)
+      await initAuthData(req)
       assert.equal(typeof req.auth, 'object')
       assert.equal(typeof req.auth.header, 'object')
       assert.equal(req.auth.header.type, 'Basic')
@@ -71,7 +72,7 @@ describe('AuthUtils', () => {
         get: (header) => header === 'Authorization' ? 'Bearer' : undefined,
         headers: {}
       }
-      await AuthUtils.initAuthData(req)
+      await initAuthData(req)
       assert.equal(typeof req.auth, 'object')
       assert.equal(typeof req.auth.header, 'object')
       assert.equal(req.auth.header.type, 'Bearer')
@@ -83,7 +84,7 @@ describe('AuthUtils', () => {
         get: (header) => header === 'Authorization' ? 'Bearer fromGet' : undefined,
         headers: { Authorization: 'Basic fromHeaders' }
       }
-      await AuthUtils.initAuthData(req)
+      await initAuthData(req)
       assert.equal(req.auth.header.type, 'Bearer')
       assert.equal(req.auth.header.value, 'fromGet')
     })
@@ -94,7 +95,7 @@ describe('AuthUtils', () => {
         headers: {},
         auth: { stale: true }
       }
-      await AuthUtils.initAuthData(req)
+      await initAuthData(req)
       assert.deepEqual(req.auth, {})
       assert.equal(req.auth.stale, undefined)
     })
