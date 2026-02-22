@@ -11,7 +11,7 @@
     "test": "node --test 'tests/**/*.spec.js'"
   },
   "dependencies": {
-    "adapt-authoring-core": "^1.7.0",
+    "adapt-authoring-core": "^2.0.0",
     "express-session": "1.19.0",
     "jsonwebtoken": "9.0.3",
     "path-to-regexp": "^8.0.0"
