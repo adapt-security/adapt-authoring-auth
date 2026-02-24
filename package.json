@@ -12,13 +12,13 @@
   },
   "dependencies": {
     "adapt-authoring-core": "^2.0.0",
+    "adapt-authoring-mongodb": "^3.0.0",
     "express-session": "1.19.0",
     "jsonwebtoken": "9.0.3",
     "path-to-regexp": "^8.0.0"
   },
   "peerDependencies": {
     "adapt-authoring-jsonschema": "^1.2.0",
-    "adapt-authoring-mongodb": "^3.0.0",
     "adapt-authoring-roles": "^1.1.3",
     "adapt-authoring-server": "^2.0.0",
     "adapt-authoring-sessions": "^1.0.2",
