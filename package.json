@@ -1,6 +1,6 @@
 {
   "name": "adapt-authoring-auth",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Authentication + authorisation module for the Adapt authoring tool",
   "homepage": "https://github.com/adapt-security/adapt-authoring-auth",
   "license": "GPL-3.0",
