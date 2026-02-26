@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$anchor": "authroutes",
   "$merge": {
     "source": { "$ref": "routes" },
@@ -7,10 +8,6 @@
         "type": {
           "type": "string",
           "description": "Auth type identifier (e.g. 'local')"
-        },
-        "parentRouter": {
-          "type": "string",
-          "description": "Parent router name (e.g. 'auth')"
         },
         "routes": {
           "type": "array",
