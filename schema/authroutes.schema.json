@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$anchor": "authroutes",
+  "$merge": {
+    "source": { "$ref": "routes" },
+    "with": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Auth type identifier (e.g. 'local')"
+        },
+        "routes": {
+          "type": "array",
+          "items": { "$ref": "routeitem" }
+        }
+      }
+    }
+  }
+}
