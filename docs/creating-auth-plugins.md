@@ -3,7 +3,7 @@
 > Preliminary reading: [Authentication and permissions](auth-permissions.md) — Overview of the auth system
 ---
 
-Auth plugins allows for implementations of different authentication methods.
+Auth plugins allow for implementations of different authentication methods.
 
 ## Basic structure
 
@@ -14,12 +14,52 @@ import { AbstractAuthModule } from 'adapt-authoring-auth'
 
 class MyAuthModule extends AbstractAuthModule {
   async setValues () {
-    this.type = 'myauth'           // Unique identifier
+    await super.setValues()
     this.userSchema = 'myauthuser' // Optional custom user schema
   }
-  
+
   async authenticate (user, req, res) {
     // Verify credentials - throw on failure
+  }
+}
+```
+
+### Declaring routes
+
+Auth plugins declare their type and custom routes in a `routes.json` file in the module root. The parent `AbstractAuthModule` reads this file automatically via `loadRouteConfig`.
+
+```json
+{
+  "type": "myauth",
+  "routes": [
+    {
+      "route": "/custom-endpoint",
+      "handlers": { "post": "myHandler" },
+      "permissions": { "post": ["custom:action"] },
+      "meta": {
+        "post": {
+          "summary": "My custom endpoint"
+        }
+      }
+    }
+  ]
+}
+```
+
+Handler strings (e.g. `"myHandler"`) are resolved to methods on the module instance automatically.
+
+Default routes (`/`, `/register`, `/enable`, `/disable`) are provided by the base auth module. To add metadata or override properties on a default route, include it in your `routes.json` with `"override": true`:
+
+```json
+{
+  "route": "/",
+  "override": true,
+  "handlers": { "post": "authenticateHandler" },
+  "meta": {
+    "post": {
+      "summary": "Authenticate with the API",
+      "requestBody": { ... }
+    }
   }
 }
 ```
@@ -28,16 +68,22 @@ class MyAuthModule extends AbstractAuthModule {
 
 ### Required values
 
-| Property | Description |
-| -------- | ----------- |
-| `this.type` | Unique identifier for the auth type (e.g., `'local'`, `'github'`) |
+| Property | Source | Description |
+| -------- | ------ | ----------- |
+| `type` | `routes.json` | Unique identifier for the auth type (e.g., `'local'`, `'github'`) |
 
 ### Optional values
 
-| Property | Default | Description |
-| -------- | ------- | ----------- |
-| `this.userSchema` | `'user'` | Schema name for validating users of this auth type - allows custom data to be added to users |
-| `this.routes` | `[]` | Additional routes for the auth plugin |
+| Property | Source | Default | Description |
+| -------- | ------ | ------- | ----------- |
+| `userSchema` | `setValues()` | `'user'` | Schema name for validating users of this auth type — allows custom data to be added to users |
+| `routes` | `routes.json` | `[]` | Additional routes for the auth plugin |
+
+### Required methods
+
+| Method | Description |
+| ------ | ----------- |
+| `authenticate(user, req, res)` | Verify credentials for a user — throw on failure. Must be implemented by subclasses. |
 
 ### Inherited methods
 
@@ -48,7 +94,9 @@ class MyAuthModule extends AbstractAuthModule {
 | `disavowUser(query)` | Revoke user tokens |
 | `secureRoute(route, method, scopes)` | Secure a route |
 | `unsecureRoute(route, method)` | Remove auth from a route |
-| `comparePassword(plain, hashed)` | Compare a plain password against a hash |
+| `authenticateHandler(req, res, next)` | Default handler for the `/` route — calls `authenticate()` |
+| `registerHandler(req, res, next)` | Default handler for the `/register` route |
+| `enableHandler(req, res, next)` | Default handler for the `/enable` and `/disable` routes |
 
 ### Hooks
 
@@ -64,7 +112,7 @@ For OAuth providers (GitHub, Okta, Google, etc.), the flow redirects users to th
 
 ### Key steps for OAuth plugins
 
-1. Extend `AbstractAuthModule` and set `this.type` to a unique identifier
+1. Extend `AbstractAuthModule` and declare `type` in your `routes.json`
 2. Add config & user schemas (if necessary)
 3. Use Passport.js with the appropriate strategy for your provider
 4. The OAuth callback should generate a token and store it in the session
@@ -83,7 +131,7 @@ import { Strategy as GitHubStrategy } from 'passport-github2'
 
 class GitHubAuthModule extends AbstractAuthModule {
   async setValues () {
-    this.type = 'github'
+    await super.setValues()
     this.userSchema = 'githubauthuser'
   }
   

@@ -76,7 +76,7 @@ For development only, authentication can be disabled.
 > **Warning:** Auth cannot be disabled in production environments. The system enforces this automatically.
 
 ```javascript
-module.exports = {
+export default {
   'adapt-authoring-auth': {
     isEnabled: false
   }
@@ -91,9 +91,9 @@ module.exports = {
 | `AUTH_TOKEN_EXPIRED` | Token has expired |
 | `AUTH_TOKEN_INVALID` | Token is malformed or tampered |
 | `ACCOUNT_DISABLED` | User account is disabled |
-| `ACCOUNT_LOCKED_TEMP` | Account temporarily locked (too many failed attempts) |
-| `ACCOUNT_LOCKED_PERM` | Account permanently locked |
 | `INVALID_LOGIN_DETAILS` | Wrong username or password |
+
+> **Note:** Auth plugins may define additional errors. For example, the local auth plugin adds `ACCOUNT_LOCKED_TEMP` (too many failed attempts) and `ACCOUNT_LOCKED_PERM` (permanently locked).
 
 ## Authorisation
 
@@ -112,8 +112,6 @@ Roles are collections of scopes (permissions) assigned to users. The system come
 - `disavow:auth`
   
 **contentcreator** _extends authuser_ — Can create and manage content:
-- `export:adapt`
-- `import:adapt`
 - `preview:adapt`
 - `publish:adapt`
 - `read:assets`
@@ -149,7 +147,7 @@ In this example, `contentcreator` has all scopes from `authuser` plus `read:cont
 Add roles via configuration in your config file:
 
 ```javascript
-module.exports = {
+export default {
   'adapt-authoring-roles': {
     roleDefinitions: [
       {
@@ -172,7 +170,7 @@ module.exports = {
 Configure which roles are assigned to new users:
 
 ```javascript
-module.exports = {
+export default {
   'adapt-authoring-roles': {
     defaultRoles: ['authuser'],
     defaultRolesForAuthTypes: {
@@ -203,6 +201,41 @@ Some examples are: `read:content`, `delete:assets` and `preview:adapt`.
 
 ### Securing routes
 
+**Using routes.json (recommended):**
+
+The preferred way to define routes and their permissions is declaratively in a `routes.json` file in the module root. Permissions are set per HTTP method — use an array of scope strings to secure, or `null` to leave unsecured.
+
+```json
+{
+  "root": "mymodule",
+  "routes": [
+    {
+      "route": "/action",
+      "handlers": { "post": "actionHandler" },
+      "permissions": { "post": ["write:myresource"] }
+    },
+    {
+      "route": "/public",
+      "handlers": { "get": "publicHandler" },
+      "permissions": { "get": null }
+    }
+  ]
+}
+```
+
+Then load and register the routes in your module:
+
+```javascript
+import { loadRouteConfig, registerRoutes } from 'adapt-authoring-server'
+
+async init () {
+  const [auth, server] = await this.app.waitForModule('auth', 'server')
+  const config = await loadRouteConfig(this.rootDir, this)
+  const router = server.api.createChildRouter(config.root)
+  registerRoutes(router, config.routes, auth)
+}
+```
+
 **Using AbstractApiModule:**
 
 When extending `AbstractApiModule`, define permissions in your route configuration:
@@ -212,7 +245,7 @@ async setValues () {
   this.root = 'myresource'
   this.schemaName = 'myresource'
   this.collectionName = 'myresources'
-  
+
   this.routes = [
     {
       route: '/',
@@ -231,12 +264,12 @@ async setValues () {
 
 **Using secureRoute directly:**
 
-For custom routes outside `AbstractApiModule`:
+For cases where imperative route registration is necessary (e.g., dynamic handlers):
 
 ```javascript
 async init () {
   const auth = await this.app.waitForModule('auth')
-  
+
   auth.secureRoute('/api/custom/action', 'post', ['custom:action'])
 }
 ```
@@ -247,10 +280,20 @@ Some routes need to be publicly accessible (e.g., login endpoints):
 
 > **Warning:** Unsecured routes are accessible without authentication. Use sparingly.
 
+In `routes.json`, set the permission value to `null`:
+
+```json
+{
+  "permissions": { "get": null }
+}
+```
+
+Or imperatively:
+
 ```javascript
 async init () {
   const auth = await this.app.waitForModule('auth')
-  
+
   auth.unsecureRoute('/api/public/data', 'get')
 }
 ```
