@@ -149,7 +149,7 @@ describe('AbstractAuthModule', () => {
 
   })
 
-  describe('#_applyRoutes()', () => {
+  describe('#applyRoutes()', () => {
     it('should add routes to the router', () => {
       const module = createTestModule()
       const routes = []
@@ -160,7 +160,7 @@ describe('AbstractAuthModule', () => {
         { route: '/a', handlers: { get: () => {} } },
         { route: '/b', handlers: { post: () => {} } }
       ]
-      module._applyRoutes(input)
+      module.applyRoutes(input)
 
       assert.equal(routes.length, 2)
       assert.equal(routes[0].route, '/a')
@@ -176,7 +176,7 @@ describe('AbstractAuthModule', () => {
         unsecureRoute: () => {}
       }
 
-      module._applyRoutes([{
+      module.applyRoutes([{
         route: '/data',
         handlers: { get: () => {}, post: () => {} },
         permissions: { get: ['read:data'], post: ['write:data'] }
@@ -196,7 +196,7 @@ describe('AbstractAuthModule', () => {
         unsecureRoute: (route, method) => unsecured.push({ route, method })
       }
 
-      module._applyRoutes([{
+      module.applyRoutes([{
         route: '/open',
         handlers: { get: () => {}, post: () => {} },
         permissions: { get: null, post: null }
@@ -217,7 +217,7 @@ describe('AbstractAuthModule', () => {
         unsecureRoute: (route, method) => unsecured.push({ route, method })
       }
 
-      module._applyRoutes([{
+      module.applyRoutes([{
         route: '/noperm',
         handlers: { get: () => {} }
       }])
