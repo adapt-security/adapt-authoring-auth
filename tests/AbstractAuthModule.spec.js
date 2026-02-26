@@ -146,7 +146,6 @@ describe('AbstractAuthModule', () => {
 
       await assert.rejects(() => AbstractAuthModule.prototype.init.call(module), authTypeError)
     })
-
   })
 
   describe('#applyRoutes()', () => {
