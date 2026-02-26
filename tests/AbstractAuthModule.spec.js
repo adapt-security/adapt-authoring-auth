@@ -1,7 +1,13 @@
-import { describe, it } from 'node:test'
+import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
+import { mkdir, writeFile, rm } from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { Hook } from 'adapt-authoring-core'
 import AbstractAuthModule from '../lib/AbstractAuthModule.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const MODULE_ROOT = path.join(__dirname, '..')
 
 function createMockApp () {
   const moduleLoadedHook = new Hook()
@@ -51,48 +57,72 @@ describe('AbstractAuthModule', () => {
   })
 
   describe('#init()', () => {
-    it('should use routes.json config when loadRouteConfig returns a config', async () => {
+    let tmpDir
+
+    before(async () => {
+      tmpDir = path.join(__dirname, 'tmp-init')
+      await mkdir(tmpDir, { recursive: true })
+    })
+
+    after(async () => {
+      await rm(tmpDir, { recursive: true, force: true })
+    })
+
+    it('should load routes from routes.json and apply permissions', async () => {
       const module = createTestModule()
+      module.rootDir = MODULE_ROOT
+      module.setValues = async () => { module.type = 'base'; module.userSchema = 'user' }
       const routes = []
       const secured = []
       const unsecured = []
-      const mockConfig = {
-        type: 'local',
-        routes: [
-          {
-            route: '/',
-            handlers: { post: () => {} },
-            unsecured: true
-          },
-          {
-            route: '/register',
-            handlers: { post: () => {} },
-            permissions: { post: ['register:users'] }
-          }
-        ]
-      }
-      const mockServer = { loadRouteConfig: async () => mockConfig }
-      module.app.waitForModule = async (...names) => names.map(n => ({ auth: createMockAuth(routes, secured, unsecured), users: {}, server: mockServer }[n]))
+      const mockAuth = createMockAuth(routes, secured, unsecured)
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
 
       await AbstractAuthModule.prototype.init.call(module)
 
-      assert.equal(module.type, 'local')
-      assert.equal(routes.length, 2)
-      assert.equal(unsecured.length, 1)
-      assert.equal(unsecured[0].route, '/api/auth/local/')
-      assert.equal(unsecured[0].method, 'post')
-      assert.equal(secured.length, 1)
-      assert.equal(secured[0].route, '/api/auth/local/register')
-      assert.equal(secured[0].method, 'post')
-      assert.deepEqual(secured[0].scopes, ['register:users'])
+      assert.equal(routes.length, 4)
+      assert.ok(unsecured.some(u => u.method === 'post' && u.route.endsWith('/')))
+      assert.ok(secured.some(s => s.method === 'post' && s.route.includes('/register')))
+      assert.ok(secured.some(s => s.method === 'post' && s.route.includes('/enable')))
+      assert.ok(secured.some(s => s.method === 'post' && s.route.includes('/disable')))
+    })
+
+    it('should set type from routes.json config when present', async () => {
+      const dir = path.join(tmpDir, 'with-type')
+      await mkdir(dir, { recursive: true })
+      await writeFile(path.join(dir, 'routes.json'), JSON.stringify({
+        type: 'custom',
+        routes: []
+      }))
+
+      const module = createTestModule()
+      module.rootDir = dir
+      const mockAuth = createMockAuth([], [], [])
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
+
+      await AbstractAuthModule.prototype.init.call(module)
+
+      assert.equal(module.type, 'custom')
+    })
+
+    it('should use type from setValues when routes.json has no type', async () => {
+      const module = createTestModule()
+      module.rootDir = MODULE_ROOT
+      module.setValues = async () => { module.type = 'mytype'; module.userSchema = 'user' }
+      const mockAuth = createMockAuth([], [], [])
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
+
+      await AbstractAuthModule.prototype.init.call(module)
+
+      assert.equal(module.type, 'mytype')
     })
 
     it('should set registerHook after routes.json init', async () => {
       const module = createTestModule()
-      const mockConfig = { type: 'local', routes: [] }
-      const mockServer = { loadRouteConfig: async () => mockConfig }
+      module.rootDir = MODULE_ROOT
+      module.setValues = async () => { module.type = 'base'; module.userSchema = 'user' }
       const mockAuth = createMockAuth([], [], [])
-      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {}, server: mockServer }[n]))
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
 
       await AbstractAuthModule.prototype.init.call(module)
 
@@ -104,9 +134,9 @@ describe('AbstractAuthModule', () => {
       module.app.errors.AUTH_TYPE_DEF_MISSING = new Error('AUTH_TYPE_DEF_MISSING')
       module.setValues = async () => { module.type = 'local'; module.routes = undefined; module.userSchema = 'user' }
       const routes = []
-      const mockServer = { loadRouteConfig: async () => null }
       const mockAuth = createMockAuth(routes, [], [])
-      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {}, server: mockServer }[n]))
+      module.rootDir = tmpDir
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
 
       await AbstractAuthModule.prototype.init.call(module)
 
@@ -117,27 +147,41 @@ describe('AbstractAuthModule', () => {
       const module = createTestModule()
       const authTypeError = new Error('AUTH_TYPE_DEF_MISSING')
       module.app.errors.AUTH_TYPE_DEF_MISSING = authTypeError
-      const mockServer = { loadRouteConfig: async () => null }
       const mockAuth = createMockAuth([], [], [])
-      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {}, server: mockServer }[n]))
+      module.rootDir = tmpDir
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
+
+      await assert.rejects(() => AbstractAuthModule.prototype.init.call(module), authTypeError)
+    })
+
+    it('should throw AUTH_TYPE_DEF_MISSING when routes.json exists but no type is available', async () => {
+      const module = createTestModule()
+      const authTypeError = new Error('AUTH_TYPE_DEF_MISSING')
+      module.app.errors.AUTH_TYPE_DEF_MISSING = authTypeError
+      module.rootDir = MODULE_ROOT // routes.json exists but has no type
+      const mockAuth = createMockAuth([], [], [])
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
 
       await assert.rejects(() => AbstractAuthModule.prototype.init.call(module), authTypeError)
     })
 
     it('should apply permissions for multiple methods from routes.json', async () => {
-      const module = createTestModule()
-      const secured = []
-      const mockConfig = {
+      const dir = path.join(tmpDir, 'multi-permissions')
+      await mkdir(dir, { recursive: true })
+      await writeFile(path.join(dir, 'routes.json'), JSON.stringify({
         type: 'local',
         routes: [{
           route: '/data',
-          handlers: { get: () => {}, post: () => {} },
+          handlers: { get: 'authenticateHandler', post: 'registerHandler' },
           permissions: { get: ['read:data'], post: ['write:data'] }
         }]
-      }
-      const mockServer = { loadRouteConfig: async () => mockConfig }
+      }))
+
+      const module = createTestModule()
+      module.rootDir = dir
+      const secured = []
       const mockAuth = createMockAuth([], secured, [])
-      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {}, server: mockServer }[n]))
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
 
       await AbstractAuthModule.prototype.init.call(module)
 
@@ -146,20 +190,23 @@ describe('AbstractAuthModule', () => {
       assert.ok(secured.some(s => s.method === 'post' && s.scopes[0] === 'write:data'))
     })
 
-    it('should unsecure all handler methods on an unsecured route from routes.json', async () => {
-      const module = createTestModule()
-      const unsecured = []
-      const mockConfig = {
+    it('should unsecure routes with null permissions from routes.json', async () => {
+      const dir = path.join(tmpDir, 'null-permissions')
+      await mkdir(dir, { recursive: true })
+      await writeFile(path.join(dir, 'routes.json'), JSON.stringify({
         type: 'local',
         routes: [{
           route: '/open',
-          handlers: { get: () => {}, post: () => {} },
-          unsecured: true
+          handlers: { get: 'authenticateHandler', post: 'registerHandler' },
+          permissions: { get: null, post: null }
         }]
-      }
-      const mockServer = { loadRouteConfig: async () => mockConfig }
+      }))
+
+      const module = createTestModule()
+      module.rootDir = dir
+      const unsecured = []
       const mockAuth = createMockAuth([], [], unsecured)
-      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {}, server: mockServer }[n]))
+      module.app.waitForModule = async (...names) => names.map(n => ({ auth: mockAuth, users: {} }[n]))
 
       await AbstractAuthModule.prototype.init.call(module)
 

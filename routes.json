@@ -1,0 +1,59 @@
+{
+  "parentRouter": "auth",
+  "routes": [
+    {
+      "route": "/",
+      "handlers": { "post": "authenticateHandler" },
+      "permissions": { "post": null }
+    },
+    {
+      "route": "/register",
+      "handlers": { "post": "registerHandler" },
+      "permissions": { "post": ["register:users"] }
+    },
+    {
+      "route": "/enable",
+      "handlers": { "post": "enableHandler" },
+      "permissions": { "post": ["write:users"] },
+      "meta": {
+        "post": {
+          "summary": "Enable user account",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": { "_id": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "responses": { "204": {} }
+        }
+      }
+    },
+    {
+      "route": "/disable",
+      "handlers": { "post": "enableHandler" },
+      "permissions": { "post": ["write:users"] },
+      "meta": {
+        "post": {
+          "summary": "Disable user account",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": { "_id": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "responses": { "204": {} }
+        }
+      }
+    }
+  ]
+}

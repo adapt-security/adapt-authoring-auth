@@ -14,10 +14,9 @@
         },
         "routes": {
           "type": "array",
-          "items": { "$ref": "authrouteitem" }
+          "items": { "$ref": "routeitem" }
         }
-      },
-      "required": ["type"]
+      }
     }
   }
 }
