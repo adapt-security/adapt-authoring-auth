@@ -1,0 +1,23 @@
+{
+  "$anchor": "authroutes",
+  "$merge": {
+    "source": { "$ref": "routes" },
+    "with": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Auth type identifier (e.g. 'local')"
+        },
+        "parentRouter": {
+          "type": "string",
+          "description": "Parent router name (e.g. 'auth')"
+        },
+        "routes": {
+          "type": "array",
+          "items": { "$ref": "authrouteitem" }
+        }
+      },
+      "required": ["type"]
+    }
+  }
+}
