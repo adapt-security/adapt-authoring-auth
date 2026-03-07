@@ -368,7 +368,7 @@ describe('AbstractAuthModule', () => {
     it('should send error if user is not found', async () => {
       const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
       const sentError = {}
-      module.users = { find: () => [] }
+      module.users = { findOne: () => null }
       const req = { body: { email: 'noone@test.com' } }
       const res = { sendError: (e) => { sentError.error = e } }
 
@@ -379,7 +379,7 @@ describe('AbstractAuthModule', () => {
     it('should call authenticate and set session token on success', async () => {
       const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
       const user = { _id: '123', email: 'test@test.com' }
-      module.users = { find: () => [user] }
+      module.users = { findOne: () => user }
       module.authenticate = async () => {}
       module.log = () => {}
 
@@ -414,7 +414,7 @@ describe('AbstractAuthModule', () => {
       const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
       const user = { _id: '123', email: 'test@test.com' }
       const authError = new Error('bad password')
-      module.users = { find: () => [user] }
+      module.users = { findOne: () => user }
       module.authenticate = async () => { throw authError }
       module.log = () => {}
       module.app.lang = { translate: (_, e) => e.message }
@@ -433,7 +433,7 @@ describe('AbstractAuthModule', () => {
       const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
       const user = { _id: 'u1' }
       let enabledValue
-      module.users = { find: () => [user] }
+      module.users = { findOne: () => user }
       module.setUserEnabled = async (u, enabled) => { enabledValue = enabled }
       module.log = () => {}
 
@@ -457,7 +457,7 @@ describe('AbstractAuthModule', () => {
       const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
       const user = { _id: 'u1' }
       let enabledValue
-      module.users = { find: () => [user] }
+      module.users = { findOne: () => user }
       module.setUserEnabled = async (u, enabled) => { enabledValue = enabled }
       module.log = () => {}
 
@@ -478,7 +478,7 @@ describe('AbstractAuthModule', () => {
     it('should call next with error on failure', async () => {
       const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
       const error = new Error('user not found')
-      module.users = { find: () => { throw error } }
+      module.users = { findOne: () => { throw error } }
 
       let nextError
       const req = { body: { _id: 'u1' }, url: '/enable' }
