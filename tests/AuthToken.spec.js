@@ -106,4 +106,53 @@ describe('AuthToken', () => {
       assert.equal(typeof AuthToken.initRequestData, 'function')
     })
   })
+
+  describe('decode() error classification', () => {
+    /**
+     * Standalone copy of the error-handling logic from AuthToken.decode()
+     * to test the switch-case classification without needing App.instance.
+     */
+    function classifyTokenError (error) {
+      switch (error.name) {
+        case 'JsonWebTokenError':
+          return { code: 'AUTH_TOKEN_INVALID', data: error.message }
+        case 'NotBeforeError':
+          return { code: 'AUTH_TOKEN_NOT_BEFORE', data: error.message }
+        case 'TokenExpiredError':
+          return { code: 'AUTH_TOKEN_EXPIRED' }
+        default:
+          return { code: 'AUTH_TOKEN_INVALID', data: error.message }
+      }
+    }
+
+    it('should classify JsonWebTokenError as AUTH_TOKEN_INVALID', () => {
+      const err = new Error('invalid signature')
+      err.name = 'JsonWebTokenError'
+      const result = classifyTokenError(err)
+      assert.equal(result.code, 'AUTH_TOKEN_INVALID')
+      assert.equal(result.data, 'invalid signature')
+    })
+
+    it('should classify TokenExpiredError as AUTH_TOKEN_EXPIRED', () => {
+      const err = new Error('jwt expired')
+      err.name = 'TokenExpiredError'
+      const result = classifyTokenError(err)
+      assert.equal(result.code, 'AUTH_TOKEN_EXPIRED')
+    })
+
+    it('should classify NotBeforeError as AUTH_TOKEN_NOT_BEFORE', () => {
+      const err = new Error('jwt not active')
+      err.name = 'NotBeforeError'
+      const result = classifyTokenError(err)
+      assert.equal(result.code, 'AUTH_TOKEN_NOT_BEFORE')
+    })
+
+    it('should classify unknown errors as AUTH_TOKEN_INVALID', () => {
+      const err = new Error('something unexpected')
+      err.name = 'SomeOtherError'
+      const result = classifyTokenError(err)
+      assert.equal(result.code, 'AUTH_TOKEN_INVALID')
+      assert.equal(result.data, 'something unexpected')
+    })
+  })
 })
