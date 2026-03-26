@@ -1,4 +1,11 @@
 {
+  "DESTROY_SESSION_FAIL": {
+    "data": {
+      "error": "The error message"
+    },
+    "description": "Failed to terminate user session",
+    "statusCode": 500
+  },
   "ACCOUNT_DISABLED": {
     "description": "Account has been disabled",
     "statusCode": 403
