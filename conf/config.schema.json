@@ -26,15 +26,49 @@
       "description": "A secret used to encode/decode Json Web Tokens",
       "type": "string",
       "minLength": 10,
-      "_adapt": { 
-        "isSecret": true 
+      "_adapt": {
+        "isSecret": true
       }
     },
     "tokenIssuer": {
       "description": "The identity of the issuer of the token",
       "type": "string",
       "default": "adapt"
+    },
+    "sessionCollection": {
+      "description": "Name of the database collection used to store user session data",
+      "type": "string",
+      "default": "usersessions"
+    },
+    "sessionLifespan": {
+      "description": "The amount of time a session should remain valid",
+      "type": "string",
+      "isTimeMs": true,
+      "default": "1h"
+    },
+    "sessionRolling": {
+      "description": "Whether sessions should only expire after a period of inactivity",
+      "type": "boolean",
+      "default": true
+    },
+    "sessionSameSite": {
+      "description": "Asserts that a cookie must not be sent with cross-origin requests",
+      "type": "string",
+      "default": "strict"
+    },
+    "sessionSecret": {
+      "description": "A secret used to encode/decode user sessions",
+      "type": "string",
+      "minLength": 10,
+      "_adapt": {
+        "isSecret": true
+      }
+    },
+    "sessionSecure": {
+      "description": "If true, cookie is only sent to the server when a request is made with the https scheme",
+      "type": ["boolean", "string"],
+      "default": false
     }
   },
-  "required": ["tokenSecret"]
+  "required": ["tokenSecret", "sessionSecret"]
 }
