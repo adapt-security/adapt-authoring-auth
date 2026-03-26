@@ -18,12 +18,8 @@ export default function (migration) {
       for (const [oldKey, newKey] of Object.entries(keyMap)) {
         if (oldKey in sessions) {
           auth[newKey] = sessions[oldKey]
-          delete sessions[oldKey]
         }
       }
-
-      if (!Object.keys(sessions).length) {
-        delete config['adapt-authoring-sessions']
-      }
+      delete config['adapt-authoring-sessions']
     })
 }
