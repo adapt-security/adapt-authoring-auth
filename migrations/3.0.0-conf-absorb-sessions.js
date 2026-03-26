@@ -3,23 +3,10 @@ export default function (migration) {
 
   migration
     .where('adapt-authoring-sessions')
-    .mutate(config => {
-      const sessions = config['adapt-authoring-sessions']
-      const auth = config['adapt-authoring-auth'] ||= {}
-
-      const keyMap = {
-        collectionName: 'sessionCollection',
-        lifespan: 'sessionLifespan',
-        rolling: 'sessionRolling',
-        sameSite: 'sessionSameSite',
-        secret: 'sessionSecret',
-        secure: 'sessionSecure'
-      }
-      for (const [oldKey, newKey] of Object.entries(keyMap)) {
-        if (oldKey in sessions) {
-          auth[newKey] = sessions[oldKey]
-        }
-      }
-      delete config['adapt-authoring-sessions']
-    })
+    .replace('collectionName', 'adapt-authoring-auth', 'sessionCollection')
+    .replace('lifespan', 'adapt-authoring-auth', 'sessionLifespan')
+    .replace('rolling', 'adapt-authoring-auth', 'sessionRolling')
+    .replace('sameSite', 'adapt-authoring-auth', 'sessionSameSite')
+    .replace('secret', 'adapt-authoring-auth', 'sessionSecret')
+    .replace('secure', 'adapt-authoring-auth', 'sessionSecure')
 }
