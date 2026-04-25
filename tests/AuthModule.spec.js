@@ -189,5 +189,31 @@ describe('AuthModule', () => {
       await authModule.apiMiddleware(req, res, () => {})
       assert.equal(permissionsChecked, true)
     })
+
+    it('should treat HEAD as GET when checking unsecured routes', async () => {
+      // Express runs the GET handler chain for HEAD requests, so HEAD must
+      // resolve unsecured state against the GET entry rather than crashing on
+      // an absent `head` bucket in the store.
+      const authModule = new AuthModule(createMockApp(), { name: 'test-auth' })
+      authModule.unsecuredRoutes = { get: { '/api/config': true }, post: {}, put: {}, patch: {}, delete: {} }
+      authModule.isEnabled = false
+      authModule.permissions = {
+        check: async () => { assert.fail('permissions.check should not run for a GET-unsecured route') }
+      }
+
+      let nextCalled = false
+      const req = {
+        get: () => undefined,
+        headers: {},
+        method: 'HEAD',
+        baseUrl: '/api',
+        route: { path: '/config/' },
+        originalUrl: '/api/config'
+      }
+      const res = { sendError: () => {} }
+
+      await authModule.apiMiddleware(req, res, () => { nextCalled = true })
+      assert.equal(nextCalled, true)
+    })
   })
 })

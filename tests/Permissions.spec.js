@@ -140,6 +140,21 @@ describe('Permissions', () => {
 
       await assert.doesNotReject(() => permissions.check(req))
     })
+
+    it('should treat HEAD as GET when resolving scopes', async () => {
+      // Express runs the GET handler chain for HEAD requests; the `head`
+      // bucket is absent from the store, so without aliasing this throws.
+      permissions.secureRoute('/api/head-alias', 'get', ['read:head-alias'])
+
+      const req = {
+        baseUrl: '/api',
+        path: '/head-alias',
+        method: 'HEAD',
+        auth: { isSuper: false, scopes: ['read:head-alias'] }
+      }
+
+      await assert.doesNotReject(() => permissions.check(req))
+    })
   })
 
   describe('constructor', () => {
