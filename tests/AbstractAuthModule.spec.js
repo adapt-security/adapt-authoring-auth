@@ -1,10 +1,17 @@
-import { describe, it, before, after } from 'node:test'
+import { describe, it, before, after, mock } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdir, rm } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Hook } from 'adapt-authoring-core'
-import AbstractAuthModule from '../lib/AbstractAuthModule.js'
+
+mock.module('adapt-authoring-server', {
+  namedExports: {
+    loadRouteConfig: async () => null,
+    registerRoutes: () => {}
+  }
+})
+const { default: AbstractAuthModule } = await import('../lib/AbstractAuthModule.js')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const MODULE_ROOT = path.join(__dirname, '..')

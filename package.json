@@ -8,7 +8,7 @@
   "main": "index.js",
   "repository": "github:adapt-security/adapt-authoring-auth",
   "scripts": {
-    "test": "node --test 'tests/**/*.spec.js'"
+    "test": "node --experimental-test-module-mocks --test 'tests/**/*.spec.js'"
   },
   "dependencies": {
     "adapt-authoring-core": "^3.0.0",
@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@adaptlearning/semantic-release-config": "^1.0.0",
-    "adapt-authoring-server": "file:./tests/mocks/adapt-authoring-server",
     "standard": "^17.1.0"
   },
   "release": {
