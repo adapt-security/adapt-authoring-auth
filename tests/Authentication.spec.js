@@ -1,8 +1,15 @@
-import { describe, it, before, after } from 'node:test'
+import { describe, it, before, after, mock } from 'node:test'
 import assert from 'node:assert/strict'
 import { App, Hook } from 'adapt-authoring-core'
-import Authentication from '../lib/Authentication.js'
-import AbstractAuthModule from '../lib/AbstractAuthModule.js'
+
+mock.module('adapt-authoring-server', {
+  namedExports: {
+    loadRouteConfig: async () => null,
+    registerRoutes: () => {}
+  }
+})
+const { default: Authentication } = await import('../lib/Authentication.js')
+const { default: AbstractAuthModule } = await import('../lib/AbstractAuthModule.js')
 
 function createMockApp () {
   const moduleLoadedHook = new Hook()
