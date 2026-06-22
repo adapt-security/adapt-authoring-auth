@@ -3,6 +3,7 @@
     "enable": true,
     "manualPages": {
       "auth-permissions.md": "concepts",
+      "access-control.md": "concepts",
       "creating-auth-plugins.md": "development"
     }
   }
