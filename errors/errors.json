@@ -55,6 +55,17 @@
     "description": "Authorization headers are missing from request",
     "statusCode": 401
   },
+  "SUPER_TOKEN_FORBIDDEN": {
+    "description": "Super users cannot create tokens carrying elevated privileges",
+    "statusCode": 403
+  },
+  "TOKEN_SCOPE_INVALID": {
+    "data": {
+      "scopes": "The requested scopes that exceed the user's own"
+    },
+    "description": "Requested token scopes exceed the user's own scopes",
+    "statusCode": 403
+  },
   "UNAUTHENTICATED": {
     "description": "Request is not authenticated for access to the API",
     "statusCode": 401

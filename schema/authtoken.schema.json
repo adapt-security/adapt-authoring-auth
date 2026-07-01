@@ -33,6 +33,12 @@
       "description": "Type of authentication used with this token",
       "type": "string",
       "isReadOnly": true
+    },
+    "scopes": {
+      "description": "Scopes this token is restricted to; when set, the request is limited to these instead of the user's full role-derived scopes",
+      "type": "array",
+      "items": { "type": "string" },
+      "isReadOnly": true
     }
   },
   "required": ["signature", "userId", "createdAt", "authType"]
