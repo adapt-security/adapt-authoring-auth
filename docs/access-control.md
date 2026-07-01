@@ -127,6 +127,17 @@ The recommended way to declare route scopes is a `routes.json` file, or the `rou
 
 Scope checks answer *"may this user call this endpoint at all?"* They cannot express *"which records may this user see?"* — that is what the access hooks below are for.
 
+## Scoped tokens
+
+`req.auth.scopes` is normally the union of the user's role scopes (above). A token may instead be **scoped** — restricted at mint time to a subset of those scopes — in which case the request carries only that subset:
+
+- `AuthToken.generate(authType, user, { scopes })` persists the given `scopes` on the token, validated as a subset of the user's own (a super user, holding all scopes, may request any concrete set). `initRequestData` then narrows `req.auth.scopes` to that set and recomputes `isSuper` on it — so a scoped token is never a super token.
+- Omitting `scopes` yields an ordinary token that inherits the user's full role scopes at verification time (this is what login tokens do).
+
+Scoped tokens let a trusted server-side caller mint a narrow credential for a user — e.g. a token limited to `read:content`/`write:content` for an external service — without handing over the user's full authority.
+
+**Super users cannot create elevated tokens.** A super user (`*:*`) may not mint a full-scope bearer token: `POST /auth/generatetoken` is refused for them, and `AuthToken.generate` rejects a `manual` token for a super user, or any `scopes` containing the `*:*` wildcard. A super user may still be issued a *scoped* (non-super) token, and their interactive login session is unaffected.
+
 ## Per-record access: the access hooks
 
 Scopes are coarse: `read:content` lets a user hit `GET /api/content`, but a user should usually only see *their own* (or shared) courses, not everyone's. `AbstractApiModule` exposes two hooks for this fine-grained filtering. Both are skipped for super users.
