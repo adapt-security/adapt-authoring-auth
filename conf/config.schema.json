@@ -65,9 +65,9 @@
       }
     },
     "sessionSecure": {
-      "description": "If true, cookie is only sent to the server when a request is made with the https scheme",
+      "description": "Controls the Secure flag on the session cookie: 'auto' (default) sets it only when the request is detected as https, true always sets it (breaks plain http), false never sets it. Behind a TLS-terminating reverse proxy, 'auto' requires adapt-authoring-server.trustProxy to be set so the https connection is detected.",
       "type": ["boolean", "string"],
-      "default": false
+      "default": "auto"
     }
   },
   "required": ["tokenSecret", "sessionSecret"]
