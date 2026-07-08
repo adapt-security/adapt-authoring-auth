@@ -298,6 +298,14 @@ async init () {
 }
 ```
 
+**Requiring authentication without a specific scope:**
+
+Pass an empty scopes array to secure a route to *any* authenticated user while requiring no particular scope. Unauthenticated requests are still rejected; authenticated ones pass regardless of their roles. This differs from unsecuring, which allows anonymous access. The `GET /api` endpoint map uses this so only logged-in users can enumerate the API surface.
+
+```javascript
+auth.secureRoute('/api', 'get', [])
+```
+
 ### Access control hooks
 
 Although a user may have access to a resource, there may be occasions when more fine-grained control is necessary to filter out specific resources. In this case, you can use hooks to implement custom access control logic.
