@@ -158,6 +158,29 @@ describe('Authentication', () => {
     })
   })
 
+  describe('#generateTokenHandler()', () => {
+    it('should forward the requested lifespan and scopes to AuthToken.generate', async () => {
+      const authentication = new Authentication()
+      const { default: AuthToken } = await import('../lib/AuthToken.js')
+      const originalGenerate = AuthToken.generate
+      let captured
+      AuthToken.generate = async (authType, user, options) => { captured = { authType, options }; return 'tok' }
+
+      const req = { auth: { isSuper: false, user: { _id: '1', email: 'a@b.c' } }, body: { lifespan: '1d', scopes: ['read:content'] } }
+      let json
+      const res = { json: (x) => { json = x } }
+
+      try {
+        await authentication.generateTokenHandler(req, res, () => {})
+        assert.equal(captured.authType, 'manual')
+        assert.deepEqual(captured.options, { lifespan: '1d', scopes: ['read:content'] })
+        assert.deepEqual(json, { token: 'tok' })
+      } finally {
+        AuthToken.generate = originalGenerate
+      }
+    })
+  })
+
   describe('static #init()', () => {
     it('should be a static method', () => {
       assert.equal(typeof Authentication.init, 'function')

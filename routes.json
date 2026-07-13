@@ -62,7 +62,10 @@
                 "schema": {
                   "$schema": "https://json-schema.org/draft/2020-12/schema",
                   "type": "object",
-                  "properties": { "lifespan": { "type": "string" } }
+                  "properties": {
+                    "lifespan": { "type": "string" },
+                    "scopes": { "type": "array", "items": { "type": "string" }, "description": "Restrict the token to a subset of the user's own scopes; omit to inherit the user's full scopes." }
+                  }
                 }
               }
             }
