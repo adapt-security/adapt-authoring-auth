@@ -69,6 +69,8 @@ To log out or invalidate sessions and revoke the current user's token:
 POST /api/auth/disavow
 ```
 
+This endpoint requires only that the request is authenticated — it carries no scope requirement. Logging out revokes the caller's own token and destroys its session, so any valid token, including a scope-restricted one that lacks broader permissions, can always disavow itself.
+
 ### Disabling authentication
 
 For development only, authentication can be disabled.
@@ -104,12 +106,10 @@ Authorisation determines what authenticated users are allowed to do. The system 
 Roles are collections of scopes (permissions) assigned to users. The system comes with three default roles:
 
 **authuser** — Basic authenticated user:
-- `clear:session`
 - `read:config`
 - `read:lang`
 - `read:me`
 - `write:me`
-- `disavow:auth`
   
 **contentcreator** _extends authuser_ — Can create and manage content:
 - `preview:adapt`
