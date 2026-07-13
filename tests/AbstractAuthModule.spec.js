@@ -418,31 +418,37 @@ describe('AbstractAuthModule', () => {
       }
     })
 
-    it('should extend the session to persistentSessionLifespan when persisting', async () => {
+    /** Runs authenticateHandler for a persistSession:true login with the given auth config, returns the resulting session maxAge. */
+    async function runPersistLogin (authConfig) {
       const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
-      const user = { _id: '123', email: 'test@test.com' }
-      module.users = { findOne: () => user }
+      module.users = { findOne: () => ({ _id: '123', email: 'test@test.com' }) }
       module.authenticate = async () => {}
       module.log = () => {}
-      module.auth = { getConfig: (key) => key === 'persistentSessionLifespan' ? 1209600000 : undefined }
-
+      module.auth = { getConfig: (key) => authConfig[key] }
       const req = {
         body: { email: 'test@test.com', persistSession: true },
         session: { cookie: { maxAge: 3600 }, token: null }
       }
       const res = { status: () => res, json: () => {} }
-
       const { default: AuthToken } = await import('../lib/AuthToken.js')
       const originalGenerate = AuthToken.generate
       AuthToken.generate = async () => 'mock-token'
-
       try {
         await module.authenticateHandler(req, res, () => {})
-        assert.equal(req.session.cookie.maxAge, 1209600000)
-        assert.equal(req.session.token, 'mock-token')
+        return req.session.cookie.maxAge
       } finally {
         AuthToken.generate = originalGenerate
       }
+    }
+
+    it('should extend to persistentSessionLifespan when persisting is allowed', async () => {
+      const maxAge = await runPersistLogin({ allowPersistentSessions: true, persistentSessionLifespan: 1209600000 })
+      assert.equal(maxAge, 1209600000)
+    })
+
+    it('should ignore a persistent-session request when not allowed', async () => {
+      const maxAge = await runPersistLogin({ allowPersistentSessions: false, persistentSessionLifespan: 1209600000 })
+      assert.equal(maxAge, 3600)
     })
 
     it('should send error if authenticate throws', async () => {

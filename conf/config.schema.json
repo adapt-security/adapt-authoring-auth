@@ -46,8 +46,14 @@
       "isTimeMs": true,
       "default": "1h"
     },
+    "allowPersistentSessions": {
+      "description": "Whether users may keep a longer session that survives browser restarts (a 'remember me' option at login). Off by default: leaving it disabled limits every session to the sessionLifespan idle timeout, which is safer on shared machines. When disabled, a client requesting a persistent session is ignored.",
+      "type": "boolean",
+      "default": false,
+      "_adapt": { "isPublic": true }
+    },
     "persistentSessionLifespan": {
-      "description": "Idle timeout applied instead of sessionLifespan when a user opts to persist ('remember me') at login, so the session survives browser restarts and lasts longer. Should be greater than sessionLifespan.",
+      "description": "Idle timeout applied instead of sessionLifespan when a user opts to persist ('remember me') at login, so the session survives browser restarts and lasts longer. Only used when allowPersistentSessions is enabled. Should be greater than sessionLifespan.",
       "type": "string",
       "isTimeMs": true,
       "default": "14d"
