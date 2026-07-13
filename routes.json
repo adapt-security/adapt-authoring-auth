@@ -63,7 +63,8 @@
                   "$schema": "https://json-schema.org/draft/2020-12/schema",
                   "type": "object",
                   "properties": {
-                    "lifespan": { "type": "string" },
+                    "name": { "type": "string", "description": "Human-readable label to distinguish this token." },
+                    "lifespan": { "type": "string", "description": "Token lifespan (e.g. '30d'); pass 'never' for a non-expiring token." },
                     "scopes": { "type": "array", "items": { "type": "string" }, "description": "Restrict the token to a subset of the user's own scopes; omit to inherit the user's full scopes." }
                   }
                 }
@@ -97,10 +98,15 @@
                     "type": "array",
                     "items": {
                       "properties": {
+                        "_id": { "type": "string" },
+                        "name": { "type": "string" },
                         "userId": { "type": "string" },
                         "createdAt": { "type": "string" },
                         "usedAt": { "type": "string" },
-                        "authType": { "type": "string" }
+                        "expiresAt": { "type": "string" },
+                        "authType": { "type": "string" },
+                        "hint": { "type": "string" },
+                        "scopes": { "type": "array", "items": { "type": "string" } }
                       }
                     }
                   }
@@ -108,6 +114,17 @@
               }
             }
           }
+        }
+      }
+    },
+    {
+      "route": "/tokens/:_id",
+      "handlers": { "delete": "revokeTokenHandler" },
+      "permissions": { "delete": ["read:me"] },
+      "meta": {
+        "delete": {
+          "summary": "Revoke a single authentication token owned by the current user",
+          "responses": { "204": {} }
         }
       }
     }

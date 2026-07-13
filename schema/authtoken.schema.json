@@ -34,6 +34,22 @@
       "type": "string",
       "isReadOnly": true
     },
+    "name": {
+      "description": "Human-readable label to distinguish this token from the user's others",
+      "type": "string"
+    },
+    "expiresAt": {
+      "description": "Token expiry timestamp; absent when the token never expires",
+      "type": "string",
+      "format": "date-time",
+      "isDate": true,
+      "isReadOnly": true
+    },
+    "hint": {
+      "description": "Masked display prefix of the token (the full value is shown only once at creation)",
+      "type": "string",
+      "isReadOnly": true
+    },
     "scopes": {
       "description": "Scopes this token is restricted to; when set, the request is limited to these instead of the user's full role-derived scopes",
       "type": "array",
