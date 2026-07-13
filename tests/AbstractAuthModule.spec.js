@@ -410,7 +410,35 @@ describe('AbstractAuthModule', () => {
         await module.authenticateHandler(req, res, () => {})
         assert.equal(statusCode, 204)
         assert.equal(jsonCalled, true)
-        assert.equal(req.session.cookie.maxAge, null)
+        // a standard (non-persisted) session keeps its default idle window
+        assert.equal(req.session.cookie.maxAge, 3600)
+        assert.equal(req.session.token, 'mock-token')
+      } finally {
+        AuthToken.generate = originalGenerate
+      }
+    })
+
+    it('should extend the session to persistentSessionLifespan when persisting', async () => {
+      const module = new AbstractAuthModule(createMockApp(), { name: 'test-auth' })
+      const user = { _id: '123', email: 'test@test.com' }
+      module.users = { findOne: () => user }
+      module.authenticate = async () => {}
+      module.log = () => {}
+      module.auth = { getConfig: (key) => key === 'persistentSessionLifespan' ? 1209600000 : undefined }
+
+      const req = {
+        body: { email: 'test@test.com', persistSession: true },
+        session: { cookie: { maxAge: 3600 }, token: null }
+      }
+      const res = { status: () => res, json: () => {} }
+
+      const { default: AuthToken } = await import('../lib/AuthToken.js')
+      const originalGenerate = AuthToken.generate
+      AuthToken.generate = async () => 'mock-token'
+
+      try {
+        await module.authenticateHandler(req, res, () => {})
+        assert.equal(req.session.cookie.maxAge, 1209600000)
         assert.equal(req.session.token, 'mock-token')
       } finally {
         AuthToken.generate = originalGenerate

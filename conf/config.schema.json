@@ -41,10 +41,16 @@
       "default": "usersessions"
     },
     "sessionLifespan": {
-      "description": "The amount of time a session should remain valid",
+      "description": "How long a standard session stays valid without activity (the rolling idle timeout). Applies to sessions that were not persisted via 'remember me'.",
       "type": "string",
       "isTimeMs": true,
       "default": "1h"
+    },
+    "persistentSessionLifespan": {
+      "description": "Idle timeout applied instead of sessionLifespan when a user opts to persist ('remember me') at login, so the session survives browser restarts and lasts longer. Should be greater than sessionLifespan.",
+      "type": "string",
+      "isTimeMs": true,
+      "default": "14d"
     },
     "sessionRolling": {
       "description": "Whether sessions should only expire after a period of inactivity",
