@@ -45,8 +45,8 @@ export default {
         shortName: 'authuser',
         displayName: 'Authenticated user',
         scopes: [
-          'disavow:auth', 'read:config', 'read:lang',
-          'read:me', 'write:me', 'clear:session'
+          'read:config', 'read:lang',
+          'read:me', 'write:me'
         ]
       },
       {

@@ -106,12 +106,10 @@ Authorisation determines what authenticated users are allowed to do. The system 
 Roles are collections of scopes (permissions) assigned to users. The system comes with three default roles:
 
 **authuser** — Basic authenticated user:
-- `clear:session`
 - `read:config`
 - `read:lang`
 - `read:me`
 - `write:me`
-- `disavow:auth`
   
 **contentcreator** _extends authuser_ — Can create and manage content:
 - `preview:adapt`
