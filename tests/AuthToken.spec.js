@@ -77,6 +77,23 @@ describe('AuthToken', () => {
     })
   })
 
+  describe('#stripTokenPrefix()', () => {
+    it('returns a bare JWT (no prefix) unchanged, so session tokens still verify', () => {
+      const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.abc123def456'
+      assert.equal(AuthToken.stripTokenPrefix(jwt), jwt)
+    })
+
+    it('strips the adpt_pat_<frag>_ prefix from a personal access token, recovering the JWT', () => {
+      const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.abc123def456'
+      assert.equal(AuthToken.stripTokenPrefix(`adpt_pat_7f3ad0c1_${jwt}`), jwt)
+    })
+
+    it('splits only on the first separator, so a JWT containing underscores is preserved', () => {
+      const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdW_iOiJ0ZXN0In0.ab_c123_def456'
+      assert.equal(AuthToken.stripTokenPrefix(`adpt_pat_7f3ad0c1_${jwt}`), jwt)
+    })
+  })
+
   describe('.generate()', () => {
     it('should be a static method', () => {
       assert.equal(typeof AuthToken.generate, 'function')

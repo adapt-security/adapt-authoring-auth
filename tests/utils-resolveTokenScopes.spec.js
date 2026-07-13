@@ -55,6 +55,14 @@ describe('resolveTokenScopes()', () => {
       const result = resolveTokenScopes({ authType: 'manual', userScopes: ['*:*', 'read:content'] }, errors)
       assert.equal(result, undefined)
     })
+
+    it('lets a super user mint a manual token when explicit non-super scopes are given', () => {
+      const result = resolveTokenScopes(
+        { authType: 'manual', userScopes: ['*:*'], requestedScopes: ['read:content', 'write:content'] },
+        errors
+      )
+      assert.deepEqual(result, ['read:content', 'write:content'])
+    })
   })
 
   describe('scoped tokens', () => {

@@ -8,6 +8,12 @@ mock.module('adapt-authoring-server', {
     registerRoutes: () => {}
   }
 })
+mock.module('adapt-authoring-mongodb', {
+  namedExports: {
+    createObjectId: () => ({ _bsontype: 'ObjectId', toString: () => 'mock-oid' }),
+    parseObjectId: (v) => ({ _bsontype: 'ObjectId', value: v, toString: () => String(v) })
+  }
+})
 const { default: Authentication } = await import('../lib/Authentication.js')
 const { default: AbstractAuthModule } = await import('../lib/AbstractAuthModule.js')
 
@@ -155,6 +161,73 @@ describe('Authentication', () => {
           return true
         }
       )
+    })
+  })
+
+  describe('#generateTokenHandler()', () => {
+    it('should forward the requested name, lifespan and scopes to AuthToken.generate', async () => {
+      const authentication = new Authentication()
+      const { default: AuthToken } = await import('../lib/AuthToken.js')
+      const originalGenerate = AuthToken.generate
+      let captured
+      AuthToken.generate = async (authType, user, options) => { captured = { authType, options }; return 'tok' }
+
+      const req = { auth: { isSuper: false, user: { _id: '1', email: 'a@b.c' } }, body: { name: 'CI deploy', lifespan: '1d', scopes: ['read:content'] } }
+      let json
+      const res = { json: (x) => { json = x } }
+
+      try {
+        await authentication.generateTokenHandler(req, res, () => {})
+        assert.equal(captured.authType, 'manual')
+        assert.deepEqual(captured.options, { name: 'CI deploy', lifespan: '1d', scopes: ['read:content'] })
+        assert.deepEqual(json, { token: 'tok' })
+      } finally {
+        AuthToken.generate = originalGenerate
+      }
+    })
+
+    it('should no longer reject a super user outright (scope rules are enforced in AuthToken.generate)', async () => {
+      const authentication = new Authentication()
+      const { default: AuthToken } = await import('../lib/AuthToken.js')
+      const originalGenerate = AuthToken.generate
+      let called = false
+      AuthToken.generate = async () => { called = true; return 'tok' }
+
+      const req = { auth: { isSuper: true, user: { _id: '1', email: 'a@b.c' } }, body: { name: 'super token', scopes: ['read:content'] } }
+      let json
+      const res = { json: (x) => { json = x } }
+      let nextErr
+      try {
+        await authentication.generateTokenHandler(req, res, (e) => { nextErr = e })
+        assert.equal(called, true)
+        assert.equal(nextErr, undefined)
+        assert.deepEqual(json, { token: 'tok' })
+      } finally {
+        AuthToken.generate = originalGenerate
+      }
+    })
+  })
+
+  describe('#revokeTokenHandler()', () => {
+    it('should revoke the token scoped to the current user and respond 204', async () => {
+      const authentication = new Authentication()
+      const { default: AuthToken } = await import('../lib/AuthToken.js')
+      const originalRevoke = AuthToken.revoke
+      let query
+      AuthToken.revoke = async (q) => { query = q }
+
+      const req = { params: { _id: '507f1f77bcf86cd799439011' }, auth: { user: { _id: 'user-1' } } }
+      let statusCode
+      const res = { status: (c) => { statusCode = c; return { end: () => {} } } }
+
+      try {
+        await authentication.revokeTokenHandler(req, res, () => {})
+        assert.equal(query.userId, 'user-1')
+        assert.equal(query._id.value, '507f1f77bcf86cd799439011') // converted to an ObjectId so deleteMany matches the stored id
+        assert.equal(statusCode, 204)
+      } finally {
+        AuthToken.revoke = originalRevoke
+      }
     })
   })
 

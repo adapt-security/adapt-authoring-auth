@@ -56,7 +56,7 @@
     "statusCode": 401
   },
   "SUPER_TOKEN_FORBIDDEN": {
-    "description": "Super users cannot create tokens carrying elevated privileges",
+    "description": "Super users cannot create a token that inherits or carries the super scope; specify explicit scopes instead",
     "statusCode": 403
   },
   "TOKEN_SCOPE_INVALID": {
