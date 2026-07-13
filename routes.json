@@ -41,7 +41,7 @@
     {
       "route": "/disavow",
       "handlers": { "post": "disavowHandler" },
-      "permissions": { "post": ["disavow:auth"] },
+      "permissions": { "post": [] },
       "meta": {
         "post": {
           "summary": "De-authenticates the current user from the API",
